@@ -15,7 +15,7 @@
       
       
       <link rel="shortcut icon" href="../assets/WebSite_Favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.3.2">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.4.0">
     
     
       
@@ -1396,7 +1396,8 @@
 <p>The following sections gives some further recommendations for specific database software, in addition to the more general recommendations given above.</p>
 <h3 id="microsoft-sql-server">Microsoft SQL Server<a class="headerlink" href="#microsoft-sql-server" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Disable <code>xp_cmdshell</code>.</li>
+<li>Disable <code>xp_cmdshell</code>, <code>xp_dirtree</code> and other stored procedures that are not required.</li>
+<li>Disable Common Language Runtime (CLR) execution.</li>
 <li>Disable the SQL Browser service.</li>
 <li>Disable <a href="https://docs.microsoft.com/en-us/sql/relational-databases/security/choose-an-authentication-mode?view=sql-server-ver15">Mixed Mode Authentication</a> unless it is required.</li>
 <li>Ensure that the sample <a href="https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/linq/downloading-sample-databases">Northwind and AdventureWorks databases</a> have been removed.</li>
@@ -1493,14 +1494,14 @@
     </div>
     
       <script src="../assets/javascripts/vendor.d710d30a.min.js"></script>
-      <script src="../assets/javascripts/bundle.7f4f3c92.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+      <script src="../assets/javascripts/bundle.b39636ac.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
       
       <script>
         app = initialize({
           base: "..",
           features: [],
           search: Object.assign({
-            worker: "../assets/javascripts/worker/search.9b3611bd.min.js"
+            worker: "../assets/javascripts/worker/search.a68abb33.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>
