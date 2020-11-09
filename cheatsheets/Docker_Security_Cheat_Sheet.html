@@ -9,11 +9,12 @@
         <meta name="description" content="Website with the collection of all the cheat sheets of the project.">
       
       
+      
         <link rel="canonical" href="https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html">
       
       
       <link rel="shortcut icon" href="../assets/WebSite_Favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.4">
     
     
       
@@ -21,10 +22,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.bc7e593a.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.358818c7.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab28b872.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f0267088.min.css">
         
       
     
@@ -613,6 +614,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#rule-11-lint-the-dockerfile-at-build-time" class="md-nav__link">
+    Rule #11 - Lint the Dockerfile at build time
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -676,6 +684,18 @@
   <li class="md-nav__item">
     <a href="Forgot_Password_Cheat_Sheet.html" class="md-nav__link">
       Forgot Password
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="GraphQL_Cheat_Sheet.html" class="md-nav__link">
+      GraphQL
     </a>
   </li>
 
@@ -842,8 +862,8 @@
 
 
   <li class="md-nav__item">
-    <a href="Microservies_security.html" class="md-nav__link">
-      Microservies security.md
+    <a href="Microservices_security.html" class="md-nav__link">
+      Microservices security.md
     </a>
   </li>
 
@@ -1304,6 +1324,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#rule-11-lint-the-dockerfile-at-build-time" class="md-nav__link">
+    Rule #11 - Lint the Dockerfile at build time
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1524,6 +1551,16 @@ It can be done by appending <code>:ro</code> to the <code>-v</code> like this:</
 <div class="codehilite"><pre><span></span><code>docker-compose --log-level info up
 </code></pre></div>
 
+<h3 id="rule-11-lint-the-dockerfile-at-build-time">Rule #11 - Lint the Dockerfile at build time<a class="headerlink" href="#rule-11-lint-the-dockerfile-at-build-time" title="Permanent link">&para;</a></h3>
+<p>Many issues can be prevented by following some best practices when writing the Dockerfile. Adding a security linter as a step in the the build pipeline can go a long way in avoiding further headaches. Some issues that are worth checking are:</p>
+<ul>
+<li>Ensure a <code>USER</code> directive is specified</li>
+<li>Ensure the base image version is pinned</li>
+<li>Ensure the OS packages versions are pinned</li>
+<li>Avoid the use of <code>ADD</code> in favor of <code>COPY</code></li>
+<li>Avoid the use of <code>apt/apk upgrade</code></li>
+<li>Avoid curl bashing in <code>RUN</code> directives</li>
+</ul>
 <p>References:</p>
 <ul>
 <li><a href="https://dev-sec.io/baselines/docker/">Docker Baselines on DevSec</a></li>
@@ -1531,6 +1568,7 @@ It can be done by appending <code>:ro</code> to the <code>-v</code> like this:</
 <li><a href="https://docs.docker.com/compose/reference/overview/">Overview of docker-compose CLI</a></li>
 <li><a href="https://docs.docker.com/config/containers/logging/configure/">Configuring Logging Drivers</a></li>
 <li><a href="https://docs.docker.com/config/containers/logging/">View logs for a container or service</a></li>
+<li><a href="https://cloudberry.engineering/article/dockerfile-security-best-practices/">Dockerfile Security Best Practices</a></li>
 </ul>
 <h2 id="related-projects">Related Projects<a class="headerlink" href="#related-projects" title="Permanent link">&para;</a></h2>
 <p><a href="https://github.com/OWASP/Docker-Security">OWASP Docker Top 10</a></p>
@@ -1606,8 +1644,8 @@ It can be done by appending <code>:ro</code> to the <code>-v</code> like this:</
       
     </div>
     
-      <script src="../assets/javascripts/vendor.6a3d08fc.min.js"></script>
-      <script src="../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../assets/javascripts/vendor.7e0ee788.min.js"></script>
+      <script src="../assets/javascripts/bundle.b3a72adc.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
