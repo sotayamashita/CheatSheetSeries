@@ -13,8 +13,8 @@
       
         <link rel="canonical" href="https://cheatsheetseries.owasp.org/cheatsheets/Pinning_Cheat_Sheet.html">
       
-      <link rel="shortcut icon" href="../assets/WebSite_Favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.5">
+      <link rel="icon" href="../assets/WebSite_Favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.0.6">
     
     
       
@@ -22,7 +22,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.77f3fd56.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.2c0c5eaf.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.7fa14f5b.min.css">
@@ -75,11 +75,9 @@
       
     </div>
     
-      
-
-<header class="md-header" data-md-component="header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="https://cheatsheetseries.owasp.org/" title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series">
+    <a href=".." title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
@@ -170,11 +168,9 @@
                     
 
 
-
-
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="https://cheatsheetseries.owasp.org/" title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series">
+    <a href=".." title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
@@ -900,8 +896,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#when-do-you-whitelist" class="md-nav__link">
-    When Do You Whitelist
+  <a href="#when-do-you-allow-list" class="md-nav__link">
+    When Do You Allow-list
   </a>
   
 </li>
@@ -1339,8 +1335,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#when-do-you-whitelist" class="md-nav__link">
-    When Do You Whitelist
+  <a href="#when-do-you-allow-list" class="md-nav__link">
+    When Do You Allow-list
   </a>
   
 </li>
@@ -1469,8 +1465,8 @@
 <p>A host or service's certificate or public key can be added to an application at development time, or it can be added upon first encountering the certificate or public key. The former - adding at development time - is preferred since <em>preloading</em> the certificate or public key <em>out of band</em> usually means the attacker cannot taint the pin.</p>
 <h3 id="when-do-you-pin">When Do You Pin<a class="headerlink" href="#when-do-you-pin" title="Permanent link">&para;</a></h3>
 <p>You should pin anytime you want to be relatively certain of the remote host's identity or when operating in a hostile environment. Since one or both are almost always true, you should probably pin all the time.</p>
-<h3 id="when-do-you-whitelist">When Do You Whitelist<a class="headerlink" href="#when-do-you-whitelist" title="Permanent link">&para;</a></h3>
-<p>If you are working for an organization which practices "egress filtering" as part of a Data Loss Prevention (DLP) strategy, you will likely encounter <em>Interception Proxies</em>. I like to refer to these things as <strong>"good" bad guys</strong> (as opposed to <strong>"bad" bad guys</strong>) since both break end-to-end security and we can't tell them apart. In this case, <strong>do not</strong> offer to whitelist the interception proxy since it defeats your security goals. Add the interception proxy's public key to your pinset after being <strong>instructed</strong> to do so by the folks in Risk Acceptance.</p>
+<h3 id="when-do-you-allow-list">When Do You Allow-list<a class="headerlink" href="#when-do-you-allow-list" title="Permanent link">&para;</a></h3>
+<p>If you are working for an organization which practices "egress filtering" as part of a Data Loss Prevention (DLP) strategy, you will likely encounter <em>Interception Proxies</em>. I like to refer to these things as <strong>"good" bad guys</strong> (as opposed to <strong>"bad" bad guys</strong>) since both break end-to-end security and we can't tell them apart. In this case, <strong>do not</strong> offer to allow-list the interception proxy since it defeats your security goals. Add the interception proxy's public key to your pinset after being <strong>instructed</strong> to do so by the folks in Risk Acceptance.</p>
 <h3 id="how-do-you-pin">How Do You Pin<a class="headerlink" href="#how-do-you-pin" title="Permanent link">&para;</a></h3>
 <p>The idea is to re-use the exiting protocols and infrastructure, but use them in a hardened manner. For re-use, a program would keep doing the things it used to do when establishing a secure connection.</p>
 <p>To harden the channel, the program would take advantage of the <code>OnConnect</code> callback offered by a library, framework or platform. In the callback, the program would verify the remote host's identity by validating its certificate or public key.</p>
@@ -1619,7 +1615,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fb4a9340.min.js", "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.5cf3e710.min.js"></script>
+      <script src="../assets/javascripts/bundle.a1c7c35e.min.js"></script>
       
     
   </body>
