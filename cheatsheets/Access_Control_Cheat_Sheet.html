@@ -10,11 +10,16 @@
       
       
       
-      
         <link rel="canonical" href="https://cheatsheetseries.owasp.org/cheatsheets/Access_Control_Cheat_Sheet.html">
       
+      
+        <link rel="prev" href="Abuse_Case_Cheat_Sheet.html">
+      
+      
+        <link rel="next" href="Attack_Surface_Analysis_Cheat_Sheet.html">
+      
       <link rel="icon" href="../assets/WebSite_Favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.2">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.6">
     
     
       
@@ -22,30 +27,30 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6f955dcd.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
         
-      
-    
-    
-    
-      
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
-    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
-        
-<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){var e;this.value&&(e=document.location.pathname,ga("send","pageview",e+"?q="+this.value))}),"undefined"!=typeof location$&&location$.subscribe(function(e){ga("send","pageview",e.pathname)})})</script>
-<script async src="https://www.google-analytics.com/analytics.js"></script>
-      
+
+    
     
     
   </head>
@@ -53,13 +58,16 @@
   
     
     
+      
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
   
     
-    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -67,7 +75,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#access-control-cheat-sheet" class="md-skip">
+        <a href="#deprecated-access-control-cheatsheet" class="md-skip">
           Skip to content
         </a>
       
@@ -76,15 +84,20 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
+    <a href="../index.html" title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -103,24 +116,47 @@
       </div>
     </div>
     
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
-      
-<div class="md-search" data-md-component="search" role="dialog">
+      <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
-      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-      </button>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
@@ -128,7 +164,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -137,11 +173,10 @@
     
     
       <div class="md-header__source">
-        
-<a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     OWASP/CheatSheetSeries
@@ -150,11 +185,14 @@
       </div>
     
   </nav>
+  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
+        
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -170,7 +208,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
+    <a href="../index.html" title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
@@ -179,11 +217,10 @@
   </label>
   
     <div class="md-nav__source">
-      
-<a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     OWASP/CheatSheetSeries
@@ -246,8 +283,38 @@
   
   
     <li class="md-nav__item">
+      <a href="../IndexMASVS.html" class="md-nav__link">
+        Index MASVS
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../IndexProactiveControls.html" class="md-nav__link">
         Index Proactive Controls
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IndexTopTen.html" class="md-nav__link">
+        Index Top 10
       </a>
     </li>
   
@@ -266,20 +333,26 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
       
-      <label class="md-nav__link" for="__nav_5">
-        Cheatsheets
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="Cheatsheets" data-md-level="1">
-        <label class="md-nav__title" for="__nav_5">
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Cheatsheets
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_7">
           <span class="md-nav__icon md-icon"></span>
           Cheatsheets
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+              
   
   
   
@@ -290,8 +363,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -302,8 +377,10 @@
     </li>
   
 
+            
           
             
+              
   
   
     
@@ -311,99 +388,23 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
         
       
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Access Control
-          <span class="md-nav__icon md-icon"></span>
-        </label>
       
       <a href="Access_Control_Cheat_Sheet.html" class="md-nav__link md-nav__link--active">
         Access Control
       </a>
       
-        
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
-    Introduction
-  </a>
-  
-    <nav class="md-nav" aria-label="Introduction">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#what-is-access-control-authorization" class="md-nav__link">
-    What is Access Control / Authorization
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#access-control-policy" class="md-nav__link">
-    Access Control Policy
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#role-based-access-control-rbac" class="md-nav__link">
-    Role-Based Access Control (RBAC)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#discretionary-access-control-dac" class="md-nav__link">
-    Discretionary Access Control (DAC)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mandatory-access-control-mac" class="md-nav__link">
-    Mandatory Access Control (MAC)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#permission-based-access-control" class="md-nav__link">
-    Permission Based Access Control
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -414,8 +415,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -426,8 +429,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Authorization_Cheat_Sheet.html" class="md-nav__link">
+        Authorization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -438,8 +457,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -450,8 +471,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -462,8 +485,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -474,8 +499,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -486,8 +513,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -498,8 +527,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -510,8 +541,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -522,8 +555,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -534,8 +569,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -546,8 +583,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="DOM_Clobbering_Prevention_Cheat_Sheet.html" class="md-nav__link">
+        DOM Clobbering Prevention
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -558,8 +611,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -570,8 +625,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -582,8 +639,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -594,8 +653,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Django_REST_Framework_Cheat_Sheet.html" class="md-nav__link">
+        Django REST Framework
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -606,8 +681,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -618,8 +695,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -630,8 +709,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -642,8 +723,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -654,8 +737,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -666,8 +751,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -678,8 +765,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="HTTP_Headers_Cheat_Sheet.html" class="md-nav__link">
+        HTTP Headers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -690,8 +793,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Infrastructure_as_Code_Security_Cheat_Sheet.html" class="md-nav__link">
+        Infrastructure as Code Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -702,8 +821,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -714,8 +835,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -726,8 +849,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -738,8 +863,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -750,8 +877,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -762,8 +891,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -774,8 +905,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -786,8 +919,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -798,20 +933,24 @@
     </li>
   
 
+            
           
             
+              
   
   
   
     <li class="md-nav__item">
-      <a href="Laravel_CheatSheet.html" class="md-nav__link">
-        Laravel CheatSheet.md
+      <a href="Laravel_Cheat_Sheet.html" class="md-nav__link">
+        Laravel
       </a>
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -822,8 +961,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Logging_Vocabulary_Cheat_Sheet.html" class="md-nav__link">
+        Logging Vocabulary
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -834,8 +989,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Microservices_Security_Cheat_Sheet.html" class="md-nav__link">
+        Microservices Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -846,20 +1017,10 @@
     </li>
   
 
+            
           
             
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="Microservices_security.html" class="md-nav__link">
-        Microservices security.md
-      </a>
-    </li>
-  
-
-          
-            
+              
   
   
   
@@ -870,8 +1031,52 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NPM_Security_Cheat_Sheet.html" class="md-nav__link">
+        NPM Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Network_Segmentation_Cheat_Sheet.html" class="md-nav__link">
+        Network Segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NodeJS_Docker_Cheat_Sheet.html" class="md-nav__link">
+        NodeJS Docker
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -882,8 +1087,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -894,8 +1101,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -906,8 +1115,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -918,8 +1129,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -930,8 +1143,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -942,8 +1157,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -954,8 +1171,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -966,8 +1185,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -978,8 +1199,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -990,8 +1213,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1002,8 +1227,38 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Secrets_Management_Cheat_Sheet.html" class="md-nav__link">
+        Secrets Management
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Secure_Product_Design_Cheat_Sheet.html" class="md-nav__link">
+        Secure Product Design
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -1014,8 +1269,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1026,8 +1283,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1038,8 +1297,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1050,8 +1311,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1062,8 +1325,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1074,8 +1339,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1086,8 +1353,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1098,8 +1367,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1110,8 +1381,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1122,8 +1395,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1134,8 +1409,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1146,8 +1423,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1158,8 +1437,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1170,8 +1451,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1182,8 +1465,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1194,6 +1479,35 @@
     </li>
   
 
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="XSS_Filter_Evasion_Cheat_Sheet.html" class="md-nav__link">
+        XSS Filter Evasion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="XS_Leaks_Cheat_Sheet.html" class="md-nav__link">
+        XS Leaks
+      </a>
+    </li>
+  
+
+            
           
         </ul>
       </nav>
@@ -1213,6 +1527,7 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -1220,222 +1535,56 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
-    Introduction
-  </a>
-  
-    <nav class="md-nav" aria-label="Introduction">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#what-is-access-control-authorization" class="md-nav__link">
-    What is Access Control / Authorization
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#access-control-policy" class="md-nav__link">
-    Access Control Policy
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#role-based-access-control-rbac" class="md-nav__link">
-    Role-Based Access Control (RBAC)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#discretionary-access-control-dac" class="md-nav__link">
-    Discretionary Access Control (DAC)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mandatory-access-control-mac" class="md-nav__link">
-    Mandatory Access Control (MAC)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#permission-based-access-control" class="md-nav__link">
-    Permission Based Access Control
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
-                
-                
-                <h1 id="access-control-cheat-sheet">Access Control Cheat Sheet<a class="headerlink" href="#access-control-cheat-sheet" title="Permanent link">&para;</a></h1>
-<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
-<p>This article is focused on providing clear, simple, actionable guidance for providing access control security in your applications. The objective is to guide developers, reviewers, designers, architects on designing, creating, and maintaining access controls in web applications.</p>
-<h3 id="what-is-access-control-authorization">What is Access Control / Authorization<a class="headerlink" href="#what-is-access-control-authorization" title="Permanent link">&para;</a></h3>
-<p>Authorization is the process where requests to access a particular resource should be granted or denied. It should be noted that authorization is not equivalent to authentication - as these terms and their definitions are frequently confused. Authentication is providing and validating identity. The authorization includes the execution rules that determine which functionality and data the user (or Principal) may access, ensuring the proper allocation of access rights after authentication is successful.</p>
-<p>Web applications need access controls to allow users (with varying privileges) to use the application. They also need administrators to manage the application’s access control rules and the granting of permissions or entitlements to users and other entities. Various access control design methodologies are available. To choose the most appropriate one, a risk assessment needs to be performed to identify threats and vulnerabilities specific to your application, so that the proper access control methodology is appropriate for your application.</p>
-<h3 id="access-control-policy">Access Control Policy<a class="headerlink" href="#access-control-policy" title="Permanent link">&para;</a></h3>
-<p>Why do we need an access control policy for web development?</p>
-<p>The intention of having an access control policy is to ensure that security requirements are described clearly to architects, designers, developers and support teams, such that access control functionality is designed and implemented in a consistent manner.</p>
-<h2 id="role-based-access-control-rbac">Role-Based Access Control (RBAC)<a class="headerlink" href="#role-based-access-control-rbac" title="Permanent link">&para;</a></h2>
-<p>In Role-Based Access Control (RBAC), access decisions are based on an individual's roles and responsibilities within the organization or user base.</p>
-<p>The process of defining roles is usually based on analyzing the fundamental goals and structure of an organization and is usually linked to the security policy. For instance, in a medical organization, the different roles of users may include those such as a doctor, nurse, attendant, patients, etc. These members require different levels of access in order to perform their functions, but also the types of web transactions and their allowed context vary greatly depending on the security policy and any relevant regulations (HIPAA, Gramm-Leach-Bliley, etc.).</p>
-<p>An RBAC access control framework should provide web application security administrators with the ability to determine who can perform what actions, when, from where, in what order, and in some cases under what relational circumstances.</p>
-<p>The advantages of using this methodology are:</p>
-<ul>
-<li>Roles are assigned based on organizational structure with emphasis on the organizational security policy</li>
-<li>Easy to use</li>
-<li>Easy to administer</li>
-<li>Built into most frameworks</li>
-<li>Aligns with security principles like segregation of duties and least privileges</li>
-</ul>
-<p>Problems that can be encountered while using this methodology:</p>
-<ul>
-<li>Documentation of the roles and accesses has to be maintained stringently.</li>
-<li>Multi-tenancy can not be implemented effectively unless there is a way to associate the roles with multi-tenancy capability requirements, e.g. OU in Active Directory</li>
-<li>There is a tendency for scope creep to happen, e.g. more accesses and privileges can be given than intended for. Or a user might be included in two roles if proper access reviews and subsequent revocation is not performed.</li>
-<li>Does not support data-based access control</li>
-</ul>
-<p>The areas of caution while using RBAC are:</p>
-<ul>
-<li>Roles must be only be transferred or delegated using strict sign-offs and procedures.</li>
-<li>When a user changes their role to another one, the administrator must make sure that the earlier access is revoked such that at any given point of time, a user is assigned to only those roles on a need to know basis.</li>
-<li>Assurance for RBAC must be carried out using strict access control reviews.</li>
-</ul>
-<h2 id="discretionary-access-control-dac">Discretionary Access Control (DAC)<a class="headerlink" href="#discretionary-access-control-dac" title="Permanent link">&para;</a></h2>
-<p>Discretionary Access Control (DAC) is a means of restricting access to information based on the identity of users and/or membership in certain groups. Access decisions are typically based on the authorizations granted to a user based on the credentials they presented at the time of authentication (user name, password, hardware/software token, etc.). In most typical DAC models, the owner of the information or any resource can change its permissions at their discretion (thus the name).</p>
-<p>A DAC framework can provide web application security administrators with the ability to implement fine-grained access control. This model can be a basis for data-based access control implementation</p>
-<p>The advantages of using this model are:</p>
-<ul>
-<li>Easy to use</li>
-<li>Easy to administer</li>
-<li>Aligns to the principle of least privileges.</li>
-<li>Object owner has total control over access granted</li>
-</ul>
-<p>Problems that can be encountered while using this methodology:</p>
-<ul>
-<li>Documentation of the roles and accesses has to be maintained stringently.</li>
-<li>Multi-tenancy can not be implemented effectively unless there is a way to associate the roles with multi-tenancy capability requirements, e.g. OU in Active Directory</li>
-<li>There is a tendency for scope creep to happen, e.g. more accesses and privileges can be given than intended for.</li>
-</ul>
-<p>The areas of caution while using DAC are:</p>
-<ul>
-<li>While granting trusts</li>
-<li>Assurance for DAC must be carried out using strict access control reviews.</li>
-</ul>
-<h2 id="mandatory-access-control-mac">Mandatory Access Control (MAC)<a class="headerlink" href="#mandatory-access-control-mac" title="Permanent link">&para;</a></h2>
-<p>Mandatory Access Control (MAC) ensures that the enforcement of organizational security policy does not rely on voluntary web application user compliance. MAC secures information by assigning sensitivity labels on information and comparing this to the level of sensitivity a user is operating at. MAC is usually appropriate for extremely secure systems, including multilevel secure military applications or mission-critical data applications.</p>
-<p>The advantages of using this methodology are:</p>
-<ul>
-<li>Access to an object is based on the sensitivity of the object</li>
-<li>Access based on the need to know is strictly adhered to, and scope creep has minimal possibility</li>
-<li>Only an administrator can grant access</li>
-</ul>
-<p>Problems that can be encountered while using this methodology:</p>
-<ul>
-<li>Difficult and expensive to implement</li>
-<li>Not agile</li>
-</ul>
-<p>The areas of caution while using MAC are:</p>
-<ul>
-<li>Classification and sensitivity assignment at an appropriate and pragmatic level</li>
-<li>Assurance for MAC must be carried out to ensure that the classification of the objects is at the appropriate level.</li>
-</ul>
-<h2 id="permission-based-access-control">Permission Based Access Control<a class="headerlink" href="#permission-based-access-control" title="Permanent link">&para;</a></h2>
-<p>The key concept in Permission Based Access Control is the abstraction of application actions into a set of <em>permissions</em>. A <em>permission</em> may be represented simply as a string-based name, for example, "READ". Access decisions are made by checking if the current user <em>has</em> the permission associated with the requested application action.</p>
-<p>The <em>has</em> relationship between the user and permission may be satisfied by creating a direct relationship between the user and permission (called a <em>grant</em>), or an indirect one. In the indirect model, the permission <em>grant</em> is to an intermediate entity such as <em>user group</em>. A user is considered a member of a <em>user group</em> if and only if the user <em>inherits</em> permissions from the <em>user group</em>. The indirect model makes it easier to manage the permissions for a large number of users since changing the permissions assigned to the user group affects all members of the user group.</p>
-<p>In some Permission Based Access Control systems that provide fine-grained domain object-level access control, permissions may be grouped into <em>classes</em>. In this model, it is assumed that each domain object in the system can be associated with a <em>class</em> which determines the permissions applicable to the respective domain object. In such a system a "DOCUMENT" class may be defined with the permissions "READ", "WRITE" and DELETE"; a "SERVER" class may be defined with the permissions "START", "STOP", and "REBOOT".</p>
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
                   
-                
-              
-              
-                
+
+  
+  
 
 
-              
-            </article>
-          </div>
+<h1 id="deprecated-access-control-cheatsheet">DEPRECATED: Access Control Cheatsheet<a class="headerlink" href="#deprecated-access-control-cheatsheet" title="Permanent link">&para;</a></h1>
+<p>The Access Control cheeetsheet has been deprecated.</p>
+<p>Please visit the <a href="Authorization_Cheat_Sheet.html">Authorization Cheatsheet</a> instead.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
         </div>
         
       </main>
       
-        
-<footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-        <a href="Abuse_Case_Cheat_Sheet.html" class="md-footer__link md-footer__link--prev" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Abuse Case
-            </div>
-          </div>
-        </a>
-      
-      
-        <a href="Attack_Surface_Analysis_Cheat_Sheet.html" class="md-footer__link md-footer__link--next" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Attack Surface Analysis
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
+        <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
-        
-          <div class="md-footer-copyright__highlight">
-            ©Copyright 2021 - CheatSheets Series Team - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.
-          </div>
-        
-        Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-          Material for MkDocs
-        </a>
-        
-      </div>
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ©Copyright 2021 - CheatSheets Series Team - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
       
     </div>
   </div>
@@ -1445,10 +1594,11 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.4ea5477f.min.js"></script>
+      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
       
     
   </body>

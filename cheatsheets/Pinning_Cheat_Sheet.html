@@ -10,11 +10,16 @@
       
       
       
-      
         <link rel="canonical" href="https://cheatsheetseries.owasp.org/cheatsheets/Pinning_Cheat_Sheet.html">
       
+      
+        <link rel="prev" href="Password_Storage_Cheat_Sheet.html">
+      
+      
+        <link rel="next" href="Query_Parameterization_Cheat_Sheet.html">
+      
       <link rel="icon" href="../assets/WebSite_Favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.2">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.6">
     
     
       
@@ -22,30 +27,30 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6f955dcd.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
         
-      
-    
-    
-    
-      
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
-    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
-        
-<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){var e;this.value&&(e=document.location.pathname,ga("send","pageview",e+"?q="+this.value))}),"undefined"!=typeof location$&&location$.subscribe(function(e){ga("send","pageview",e.pathname)})})</script>
-<script async src="https://www.google-analytics.com/analytics.js"></script>
-      
+
+    
     
     
   </head>
@@ -53,13 +58,16 @@
   
     
     
+      
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
   
     
-    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -76,15 +84,20 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
+    <a href="../index.html" title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -103,24 +116,47 @@
       </div>
     </div>
     
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
-      
-<div class="md-search" data-md-component="search" role="dialog">
+      <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
-      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-      </button>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
@@ -128,7 +164,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -137,11 +173,10 @@
     
     
       <div class="md-header__source">
-        
-<a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     OWASP/CheatSheetSeries
@@ -150,11 +185,14 @@
       </div>
     
   </nav>
+  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
+        
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -170,7 +208,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
+    <a href="../index.html" title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
@@ -179,11 +217,10 @@
   </label>
   
     <div class="md-nav__source">
-      
-<a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     OWASP/CheatSheetSeries
@@ -246,8 +283,38 @@
   
   
     <li class="md-nav__item">
+      <a href="../IndexMASVS.html" class="md-nav__link">
+        Index MASVS
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../IndexProactiveControls.html" class="md-nav__link">
         Index Proactive Controls
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IndexTopTen.html" class="md-nav__link">
+        Index Top 10
       </a>
     </li>
   
@@ -266,20 +333,26 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
       
-      <label class="md-nav__link" for="__nav_5">
-        Cheatsheets
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="Cheatsheets" data-md-level="1">
-        <label class="md-nav__title" for="__nav_5">
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Cheatsheets
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_7">
           <span class="md-nav__icon md-icon"></span>
           Cheatsheets
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+              
   
   
   
@@ -290,8 +363,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -302,8 +377,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -314,8 +391,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -326,8 +405,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -338,8 +419,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Authorization_Cheat_Sheet.html" class="md-nav__link">
+        Authorization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -350,8 +447,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -362,8 +461,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -374,8 +475,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -386,8 +489,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -398,8 +503,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -410,8 +517,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -422,8 +531,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -434,8 +545,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -446,8 +559,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -458,8 +573,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="DOM_Clobbering_Prevention_Cheat_Sheet.html" class="md-nav__link">
+        DOM Clobbering Prevention
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -470,8 +601,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -482,8 +615,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -494,8 +629,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -506,8 +643,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Django_REST_Framework_Cheat_Sheet.html" class="md-nav__link">
+        Django REST Framework
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -518,8 +671,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -530,8 +685,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -542,8 +699,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -554,8 +713,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -566,8 +727,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -578,8 +741,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -590,8 +755,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="HTTP_Headers_Cheat_Sheet.html" class="md-nav__link">
+        HTTP Headers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -602,8 +783,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Infrastructure_as_Code_Security_Cheat_Sheet.html" class="md-nav__link">
+        Infrastructure as Code Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -614,8 +811,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -626,8 +825,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -638,8 +839,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -650,8 +853,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -662,8 +867,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -674,8 +881,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -686,8 +895,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -698,8 +909,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -710,20 +923,24 @@
     </li>
   
 
+            
           
             
+              
   
   
   
     <li class="md-nav__item">
-      <a href="Laravel_CheatSheet.html" class="md-nav__link">
-        Laravel CheatSheet.md
+      <a href="Laravel_Cheat_Sheet.html" class="md-nav__link">
+        Laravel
       </a>
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -734,8 +951,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Logging_Vocabulary_Cheat_Sheet.html" class="md-nav__link">
+        Logging Vocabulary
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -746,8 +979,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Microservices_Security_Cheat_Sheet.html" class="md-nav__link">
+        Microservices Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -758,20 +1007,10 @@
     </li>
   
 
+            
           
             
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="Microservices_security.html" class="md-nav__link">
-        Microservices security.md
-      </a>
-    </li>
-  
-
-          
-            
+              
   
   
   
@@ -782,8 +1021,52 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NPM_Security_Cheat_Sheet.html" class="md-nav__link">
+        NPM Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Network_Segmentation_Cheat_Sheet.html" class="md-nav__link">
+        Network Segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NodeJS_Docker_Cheat_Sheet.html" class="md-nav__link">
+        NodeJS Docker
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -794,8 +1077,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -806,8 +1091,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -818,8 +1105,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -830,8 +1119,10 @@
     </li>
   
 
+            
           
             
+              
   
   
     
@@ -839,7 +1130,7 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
         
@@ -855,6 +1146,7 @@
       </a>
       
         
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -891,15 +1183,29 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#when-do-you-pin" class="md-nav__link">
-    When Do You Pin
+  <a href="#when-to-add-a-pin" class="md-nav__link">
+    When to Add a Pin
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#when-do-you-allow-list" class="md-nav__link">
-    When Do You Allow-list
+  <a href="#when-do-you-perform-pinning" class="md-nav__link">
+    When Do You Perform Pinning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-do-you-not-pin" class="md-nav__link">
+    When Do You Not Pin?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-apply-exceptions" class="md-nav__link">
+    When to Apply Exceptions
   </a>
   
 </li>
@@ -911,12 +1217,7 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
+          <li class="md-nav__item">
   <a href="#what-should-be-pinned" class="md-nav__link">
     What Should Be Pinned
   </a>
@@ -939,9 +1240,14 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#hashing" class="md-nav__link">
-    Hashing
+  <a href="#hash" class="md-nav__link">
+    Hash
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1012,8 +1318,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1024,8 +1332,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1036,8 +1346,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1048,8 +1360,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1060,8 +1374,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1072,8 +1388,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1084,8 +1402,38 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Secrets_Management_Cheat_Sheet.html" class="md-nav__link">
+        Secrets Management
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Secure_Product_Design_Cheat_Sheet.html" class="md-nav__link">
+        Secure Product Design
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -1096,8 +1444,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1108,8 +1458,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1120,8 +1472,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1132,8 +1486,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1144,8 +1500,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1156,8 +1514,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1168,8 +1528,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1180,8 +1542,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1192,8 +1556,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1204,8 +1570,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1216,8 +1584,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1228,8 +1598,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1240,8 +1612,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1252,8 +1626,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1264,8 +1640,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1276,6 +1654,35 @@
     </li>
   
 
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="XSS_Filter_Evasion_Cheat_Sheet.html" class="md-nav__link">
+        XSS Filter Evasion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="XS_Leaks_Cheat_Sheet.html" class="md-nav__link">
+        XS Leaks
+      </a>
+    </li>
+  
+
+            
           
         </ul>
       </nav>
@@ -1295,6 +1702,7 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -1331,15 +1739,29 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#when-do-you-pin" class="md-nav__link">
-    When Do You Pin
+  <a href="#when-to-add-a-pin" class="md-nav__link">
+    When to Add a Pin
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#when-do-you-allow-list" class="md-nav__link">
-    When Do You Allow-list
+  <a href="#when-do-you-perform-pinning" class="md-nav__link">
+    When Do You Perform Pinning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-do-you-not-pin" class="md-nav__link">
+    When Do You Not Pin?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-apply-exceptions" class="md-nav__link">
+    When to Apply Exceptions
   </a>
   
 </li>
@@ -1351,12 +1773,7 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
+          <li class="md-nav__item">
   <a href="#what-should-be-pinned" class="md-nav__link">
     What Should Be Pinned
   </a>
@@ -1379,9 +1796,14 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#hashing" class="md-nav__link">
-    Hashing
+  <a href="#hash" class="md-nav__link">
+    Hash
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1453,66 +1875,113 @@
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
-                
-                <h1 id="pinning-cheat-sheet">Pinning Cheat Sheet<a class="headerlink" href="#pinning-cheat-sheet" title="Permanent link">&para;</a></h1>
+                  
+
+  
+  
+
+
+<h1 id="pinning-cheat-sheet">Pinning Cheat Sheet<a class="headerlink" href="#pinning-cheat-sheet" title="Permanent link">&para;</a></h1>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
 <p>The Pinning Cheat Sheet is a technical guide to implementing certificate and public key pinning as discussed at the Virginia chapter's presentation <a href="https://wiki.owasp.org/images/8/8f/Securing-Wireless-Channels-in-the-Mobile-Space.ppt">Securing Wireless Channels in the Mobile Space</a>. This guide is focused on providing clear, simple, actionable guidance for securing the channel in a hostile environment where actors could be malicious and the conference of trust a liability.</p>
 <h2 id="whats-the-problem">What's the problem<a class="headerlink" href="#whats-the-problem" title="Permanent link">&para;</a></h2>
 <p>Users, developers, and applications expect end-to-end security on their secure channels, but some secure channels are not meeting the expectation. Specifically, channels built using well known protocols such as VPN, SSL, and TLS can be vulnerable to a number of attacks.</p>
 <h2 id="what-is-pinning">What Is Pinning<a class="headerlink" href="#what-is-pinning" title="Permanent link">&para;</a></h2>
 <p>Pinning is the process of associating a host with their <em>expected</em> X509 certificate or public key. Once a certificate or public key is known or seen for a host, the certificate or public key is associated or 'pinned' to the host. If more than one certificate or public key is acceptable, then the program holds a <em>pinset</em> (taking from <a href="https://developers.google.com/events/io/sessions/gooio2012/107/">Jon Larimer and Kenny Root Google I/O talk</a>). In this case, the advertised identity must match one of the elements in the pinset.</p>
+<h3 id="when-to-add-a-pin">When to Add a Pin<a class="headerlink" href="#when-to-add-a-pin" title="Permanent link">&para;</a></h3>
 <p>A host or service's certificate or public key can be added to an application at development time, or it can be added upon first encountering the certificate or public key. The former - adding at development time - is preferred since <em>preloading</em> the certificate or public key <em>out of band</em> usually means the attacker cannot taint the pin.</p>
-<h3 id="when-do-you-pin">When Do You Pin<a class="headerlink" href="#when-do-you-pin" title="Permanent link">&para;</a></h3>
+<h3 id="when-do-you-perform-pinning">When Do You Perform Pinning<a class="headerlink" href="#when-do-you-perform-pinning" title="Permanent link">&para;</a></h3>
 <p>You should pin anytime you want to be relatively certain of the remote host's identity or when operating in a hostile environment. Since one or both are almost always true, you should probably pin all the time.</p>
-<h3 id="when-do-you-allow-list">When Do You Allow-list<a class="headerlink" href="#when-do-you-allow-list" title="Permanent link">&para;</a></h3>
-<p>If you are working for an organization which practices "egress filtering" as part of a Data Loss Prevention (DLP) strategy, you will likely encounter <em>Interception Proxies</em>. I like to refer to these things as <strong>"good" bad guys</strong> (as opposed to <strong>"bad" bad guys</strong>) since both break end-to-end security and we can't tell them apart. In this case, <strong>do not</strong> offer to allow-list the interception proxy since it defeats your security goals. Add the interception proxy's public key to your pinset after being <strong>instructed</strong> to do so by the folks in Risk Acceptance.</p>
+<h3 id="when-do-you-not-pin">When Do You Not Pin?<a class="headerlink" href="#when-do-you-not-pin" title="Permanent link">&para;</a></h3>
+<p>Pinning requires control of upcoming certificate attributes. If the certificate key pair cannot be predicted in advance before it is put into service, then pinning will lead to an outage when the endpoint presents a new certificate. For instance, if a certificate provider generates random key pairs whenever a certificate is rotated, and you cannot control when this certificate is put into use, then you will not be able to update your clients until they have already experienced an outage.</p>
+<h3 id="when-to-apply-exceptions">When to Apply Exceptions<a class="headerlink" href="#when-to-apply-exceptions" title="Permanent link">&para;</a></h3>
+<p>If you are working for an organization which practices "egress filtering" as part of a Data Loss Prevention (DLP) strategy, you will likely encounter <em>Interception Proxies</em>. I like to refer to these things as <strong>"good" bad actors</strong> (as opposed to <strong>"bad" bad actors</strong>) since both break end-to-end security and we can't tell them apart. In this case, <strong>do not</strong> offer to allow-list the interception proxy since it defeats your security goals. Add the interception proxy's public key to your pinset after being <strong>instructed</strong> to do so by the folks in Risk Acceptance.</p>
 <h3 id="how-do-you-pin">How Do You Pin<a class="headerlink" href="#how-do-you-pin" title="Permanent link">&para;</a></h3>
 <p>The idea is to re-use the exiting protocols and infrastructure, but use them in a hardened manner. For re-use, a program would keep doing the things it used to do when establishing a secure connection.</p>
-<p>To harden the channel, the program would take advantage of the <code>OnConnect</code> callback offered by a library, framework or platform. In the callback, the program would verify the remote host's identity by validating its certificate or public key.</p>
-<h2 id="what-should-be-pinned">What Should Be Pinned<a class="headerlink" href="#what-should-be-pinned" title="Permanent link">&para;</a></h2>
-<p>The first thing to decide is what should be pinned. For this choice, you have two options:</p>
+<p>To harden the channel, the program would take advantage of the <code>OnConnect</code> callback offered by a library, framework or platform. In the callback, the program would verify the remote host's identity by validating its certificate or public key. See <a href="#examples-of-pinning">some examples</a> below.</p>
+<h3 id="what-should-be-pinned">What Should Be Pinned<a class="headerlink" href="#what-should-be-pinned" title="Permanent link">&para;</a></h3>
+<p>In order to decide what should be pinned you can follow the following steps.</p>
+<ol>
+<li>
+<p>Decide if you want to pin the root CA, intermediate CA or leaf certificate:</p>
 <ul>
-<li>Pin the certificate.</li>
-<li>Pin the public key.</li>
+<li>Pinning the <strong>root CA</strong> is generally not recommended since it highly increases the risk because it implies also trusting all its intermediate CAs.</li>
+<li>Pinning a specific <strong>intermediate CA</strong> reduces the risk but the application will be also trusting any other certificates issues by that CA, not only the ones meant for your application.</li>
+<li>Pinning a <strong>leaf certificate</strong> is recommended but must include backup (e.g. intermediate CA). It provides 100% certainty that the app exclusively trusts the remote hosts it was designed to connect to.</li>
 </ul>
-<p>If you choose public keys, you have two additional choices:</p>
-<ul>
-<li>Pin the <code>subjectPublicKeyInfo</code>.</li>
+<p>For example, the application pins the remote endpoint leaf certificate but includes a backup pin for the intermediate CA. This increases the risk by trusting more certificate authorities but decreases the chances of bricking your app. If there's any issue with the leaf certificate, the app can always fall back to the intermediate CA until you release an app update.</p>
+</li>
+<li>
+<p>Choose if you want to pin the <strong>whole certificate</strong> or just its <strong>public key</strong>.</p>
+</li>
+<li>
+<p>If you chose the public key, you have two additional choices:</p>
+</li>
+<li>
+<p>Pin the <code>subjectPublicKeyInfo</code>.</p>
+</li>
 <li>Pin one of the concrete types such as <code>RSAPublicKey</code> or <code>DSAPublicKey</code>.</li>
-</ul>
+</ol>
 <p><strong>subjectPublicKeyInfo</strong>:</p>
 <p><img alt="RandomOrgDERDump" src="../assets/Pinning_Cheat_Sheet_RandomOrgDERDump.png" /></p>
 <p>The three choices are explained below in more detail. I would encourage you to pin the <code>subjectPublicKeyInfo</code> because it has the public parameters (such as <code>{e,n}</code> for an RSA public key) <strong>and</strong> contextual information such as an algorithm and OID. The context will help you keep your bearings at times, and the figure to the right shows the additional information available.</p>
-<h3 id="certificate">Certificate<a class="headerlink" href="#certificate" title="Permanent link">&para;</a></h3>
+<h4 id="certificate">Certificate<a class="headerlink" href="#certificate" title="Permanent link">&para;</a></h4>
 <p><img alt="Certificate" src="../assets/Pinning_Cheat_Sheet_Certificate.png" /></p>
 <p>The certificate is easiest to pin. You can fetch the certificate out of band for the website, have the IT folks email your company certificate to you, use <code>openssl s_client</code> to retrieve the certificate etc. At runtime, you retrieve the website or server's certificate in the callback. Within the callback, you compare the retrieved certificate with the certificate embedded within the program. If the comparison fails, then fail the method or function.</p>
-<p>There is a downside to pinning a certificate. If the site rotates its certificate on a regular basis, then your application would need to be updated regularly. For example, Google rotates its certificates, so you will need to update your application about once a month (if it depended on Google services). Even though Google rotates its certificates, the underlying public keys (within the certificate) remain static.</p>
-<h3 id="public-key">Public Key<a class="headerlink" href="#public-key" title="Permanent link">&para;</a></h3>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>It might be easier to implement than the other methods, especially in languages such as Cocoa/CocoaTouch and OpenSSL.</li>
+</ul>
+<p><strong>Downsides:</strong></p>
+<ul>
+<li>If the site rotates its certificate on a regular basis, then your application would need to be updated regularly. If you do not control when this certificate is put into service, then pinning will lead to an outage.</li>
+</ul>
+<h4 id="public-key">Public Key<a class="headerlink" href="#public-key" title="Permanent link">&para;</a></h4>
 <p><img alt="PublicKey" src="../assets/Pinning_Cheat_Sheet_PublicKey.png" /></p>
 <p>Public key pinning is more flexible but a little trickier due to the extra steps necessary to extract the public key from a certificate. As with a certificate, the program checks the extracted public key with its embedded copy of the public key.</p>
-<p>There are two downsides to public key pinning. First, it's harder to work with keys (versus certificates) since you must extract the key from the certificate. Extraction is a minor inconvenience in Java and .Net, buts it's uncomfortable in Cocoa/CocoaTouch and OpenSSL. Second, the key is static and may violate key rotation policies.</p>
-<h3 id="hashing">Hashing<a class="headerlink" href="#hashing" title="Permanent link">&para;</a></h3>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>It allows access to public key parameters (such as <code>{e,n}</code> for an RSA public key) and contextual information such as an algorithm and OID.</li>
+<li>It's more flexible than certificate pinning. Even if the server rotates its certificates, the underlying public keys (within the certificate) remain static.</li>
+</ul>
+<p><strong>Downsides:</strong></p>
+<ul>
+<li>It's harder to work with keys (versus certificates) since you must extract the key from the certificate. Extraction is a minor inconvenience in Java and .Net, but it's uncomfortable in Cocoa/CocoaTouch and OpenSSL.</li>
+<li>The key is static and may violate key rotation policies.</li>
+<li>Some service providers generate new keys upon renewal.</li>
+<li>It's not possible to anonymize the public keys.</li>
+</ul>
+<h4 id="hash">Hash<a class="headerlink" href="#hash" title="Permanent link">&para;</a></h4>
 <p>While the three choices above used DER encoding, its also acceptable to use a hash of the information. In fact, the original sample programs were written using digested certificates and public keys. The samples were changed to allow a programmer to inspect the objects with tools like <code>dumpasn1</code> and other ASN.1 decoders.</p>
-<p>Hashing also provides three additional benefits. First, hashing allows you to anonymize a certificate or public key. This might be important if you application is concerned about leaking information during decompilation and re-engineering. Second, a digested certificate fingerprint is often available as a native API for many libraries, so its convenient to use.</p>
-<p>Finally, an organization might want to supply a reserve (or back-up) identity in case the primary identity is compromised. Hashing ensures your adversaries do not see the reserved certificate or public key in advance of its use. In fact, Google's IETF draft <em>websec-key-pinning</em> uses the technique.</p>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>It's convenient to use. A digested certificate fingerprint is often available as a native API for many libraries.</li>
+<li>Hashing allows you to anonymize a certificate or public key. This might be important if you application is concerned about leaking information during decompilation and re-engineering.</li>
+<li>An organization might want to supply a reserve (or back-up) identity in case the primary identity is compromised. Hashing ensures your adversaries do not see the reserved certificate or public key in advance of its use. In fact, Google's IETF draft <em>websec-key-pinning</em> uses the technique.</li>
+</ul>
+<p><strong>Downsides:</strong></p>
+<ul>
+<li>No access to public key parameters nor contextual information such as an algorithm and OID which might be needed in certain use cases.</li>
+<li>If the site rotates its certificate on a regular basis, then your application would need to be updated regularly. If you do not control when this certificate is put into service, then pinning would lead to an outage.</li>
+</ul>
 <h2 id="examples-of-pinning">Examples of Pinning<a class="headerlink" href="#examples-of-pinning" title="Permanent link">&para;</a></h2>
 <p>This section discusses certificate and public key pinning in Android Java, iOS, .Net, and OpenSSL. Code has been omitted for brevity, but the key points for the platform are highlighted.</p>
 <h3 id="android">Android<a class="headerlink" href="#android" title="Permanent link">&para;</a></h3>
 <p>Since Android N, the preferred way for implementing pinning is by leveraging Android's <a href="https://developer.android.com/training/articles/security-config.html">Network Security Configuration</a> feature, which lets apps customize their network security settings in a safe, declarative configuration file without modifying app code.</p>
 <p>To enable pinning, <a href="https://developer.android.com/training/articles/security-config.html#CertificatePinning">the <code>&lt;pin-set&gt;</code> configuration setting</a> can be used.</p>
 <p>If devices running a version of Android that is earlier than N need to be supported, a backport of the Network Security Configuration pinning functionality is available via the <a href="https://github.com/datatheorem/TrustKit-Android">TrustKit Android library</a>.</p>
-<p>Alternatively you can use methods such as the pinning from OkHTTP in order to set specific pins programmatically, as explained in <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#network-libraries-and-webviews">the MSTG</a> and <a href="https://square.github.io/okhttp/3.x/okhttp/okhttp3/CertificatePinner.html">the OKHttp documentation</a>.</p>
+<p>Alternatively you can use methods such as the pinning from OkHTTP in order to set specific pins programmatically, as explained in the <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#network-libraries-and-webviews">OWASP Mobile Security Testing Guide (MSTG)</a> and <a href="https://square.github.io/okhttp/3.x/okhttp/okhttp3/CertificatePinner.html">the OKHttp documentation</a>.</p>
 <p>The Android documentation provides an example of how SSL validation can be customized within the app's code (in order to implement pinning) in the <a href="https://developer.android.com/training/articles/security-ssl.html#UnknownCa">Unknown CA implementation document</a>. However, implementing pinning validation from scratch should be avoided, as implementation mistakes are extremely likely and usually lead to severe vulnerabilities.</p>
-<p>Lastly, if you want to validate whether the pinning is successful, please follow instructions from the Mobile Security Testing Guide's <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x04f-Testing-Network-Communication.md#testing-network-communication">ntroduction into testing network communication</a> and the <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#android-network-apis">Android specific network testing</a>.</p>
+<p>Lastly, if you want to validate whether the pinning is successful, please follow instructions from the <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x04f-Testing-Network-Communication.md#testing-network-communication">introduction into testing network communication</a> and the <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md">Android specific network testing</a> chapters of the OWASP Mobile Security Testing Guide (MSTG).</p>
 <h3 id="ios">iOS<a class="headerlink" href="#ios" title="Permanent link">&para;</a></h3>
-<p>Apple suggests pinning a CA public key by specifying it in <code>Info.plist</code> file under App Transport Security Settings. More details in <a href="https://developer.apple.com/news/?id=g9ejcf8y">Identity Pinning: How to configure server certificates for your app</a> article.</p>
+<p>Apple suggests pinning a CA public key by specifying it in <code>Info.plist</code> file under <a href="https://developer.apple.com/documentation/security/preventing_insecure_network_connections">App Transport Security Settings</a>. More details in the article <a href="https://developer.apple.com/news/?id=g9ejcf8y">"Identity Pinning: How to configure server certificates for your app"</a>.</p>
 <p><a href="https://github.com/datatheorem/TrustKit">TrustKit</a>, an open-source SSL pinning library for iOS and macOS is available. It provides an easy-to-use API for implementing pinning, and has been deployed in many apps.</p>
 <p>Otherwise, more details regarding how SSL validation can be customized on iOS (in order to implement pinning) are available in the <a href="https://developer.apple.com/library/content/technotes/tn2232/_index.html">HTTPS Server Trust Evaluation</a> technical note. However, implementing pinning validation from scratch should be avoided, as implementation mistakes are extremely likely and usually lead to severe vulnerabilities.</p>
-<p>Lastly, if you want to validate whether the pinning is successful, please follow instructions from the Mobile Security Testing Guide's <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x04f-Testing-Network-Communication.md#testing-network-communication">introduction into testing network communication</a> and the <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x06g-Testing-Network-Communication.md">iOS specific network testing</a>.</p>
+<p>Lastly, if you want to validate whether the pinning is successful, please follow instructions from the <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x04f-Testing-Network-Communication.md#testing-network-communication">introduction into testing network communication</a> and the <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x06g-Testing-Network-Communication.md">iOS specific network testing</a> chapters of the OWASP Mobile Security Testing Guide (MSTG).</p>
 <h3 id="net">.Net<a class="headerlink" href="#net" title="Permanent link">&para;</a></h3>
 <p>.Net pinning can be achieved by using <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.servicepointmanager?view=netframework-4.7.2"><code>ServicePointManager</code></a>. An example can be found at the <a href="https://github.com/OWASP/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#xamarin-applications">OWASP MSTG</a>.</p>
 <p>Download the <a href="../assets/Pinning_Cheat_Sheet_Certificate_DotNetSample.zip">.Net sample program</a>.</p>
@@ -1543,71 +2012,37 @@
 <li>IETF <a href="http://www.ietf.org/rfc/rfc5246.txt">RFC 5246 (TLS 1.2)</a></li>
 <li>IETF <a href="https://tools.ietf.org/html/rfc8017">PKCS #1: RSA Cryptography Specifications Version 2.2</a></li>
 </ul>
-                
-                  
-                
-              
-              
-                
 
 
-              
-            </article>
-          </div>
+
+
+
+                
+              </article>
+            </div>
+          
+          
         </div>
         
       </main>
       
-        
-<footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-        <a href="Password_Storage_Cheat_Sheet.html" class="md-footer__link md-footer__link--prev" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Password Storage
-            </div>
-          </div>
-        </a>
-      
-      
-        <a href="Query_Parameterization_Cheat_Sheet.html" class="md-footer__link md-footer__link--next" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Query Parameterization
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
+        <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
-        
-          <div class="md-footer-copyright__highlight">
-            ©Copyright 2021 - CheatSheets Series Team - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.
-          </div>
-        
-        Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-          Material for MkDocs
-        </a>
-        
-      </div>
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ©Copyright 2021 - CheatSheets Series Team - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
       
     </div>
   </div>
@@ -1617,10 +2052,11 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.4ea5477f.min.js"></script>
+      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
       
     
   </body>

@@ -10,11 +10,16 @@
       
       
       
-      
         <link rel="canonical" href="https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html">
       
+      
+        <link rel="prev" href="Third_Party_Javascript_Management_Cheat_Sheet.html">
+      
+      
+        <link rel="next" href="Transaction_Authorization_Cheat_Sheet.html">
+      
       <link rel="icon" href="../assets/WebSite_Favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.2">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.6">
     
     
       
@@ -22,30 +27,30 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6f955dcd.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
         
-      
-    
-    
-    
-      
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
-    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
-        
-<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){var e;this.value&&(e=document.location.pathname,ga("send","pageview",e+"?q="+this.value))}),"undefined"!=typeof location$&&location$.subscribe(function(e){ga("send","pageview",e.pathname)})})</script>
-<script async src="https://www.google-analytics.com/analytics.js"></script>
-      
+
+    
     
     
   </head>
@@ -53,13 +58,16 @@
   
     
     
+      
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
   
     
-    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -76,15 +84,20 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
+    <a href="../index.html" title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -103,24 +116,47 @@
       </div>
     </div>
     
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
-      
-<div class="md-search" data-md-component="search" role="dialog">
+      <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
-      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-      </button>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
@@ -128,7 +164,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -137,11 +173,10 @@
     
     
       <div class="md-header__source">
-        
-<a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     OWASP/CheatSheetSeries
@@ -150,11 +185,14 @@
       </div>
     
   </nav>
+  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
+        
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -170,7 +208,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
+    <a href="../index.html" title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
@@ -179,11 +217,10 @@
   </label>
   
     <div class="md-nav__source">
-      
-<a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     OWASP/CheatSheetSeries
@@ -246,8 +283,38 @@
   
   
     <li class="md-nav__item">
+      <a href="../IndexMASVS.html" class="md-nav__link">
+        Index MASVS
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../IndexProactiveControls.html" class="md-nav__link">
         Index Proactive Controls
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IndexTopTen.html" class="md-nav__link">
+        Index Top 10
       </a>
     </li>
   
@@ -266,20 +333,26 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
       
-      <label class="md-nav__link" for="__nav_5">
-        Cheatsheets
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="Cheatsheets" data-md-level="1">
-        <label class="md-nav__title" for="__nav_5">
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Cheatsheets
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_7">
           <span class="md-nav__icon md-icon"></span>
           Cheatsheets
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+              
   
   
   
@@ -290,8 +363,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -302,8 +377,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -314,8 +391,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -326,8 +405,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -338,8 +419,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Authorization_Cheat_Sheet.html" class="md-nav__link">
+        Authorization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -350,8 +447,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -362,8 +461,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -374,8 +475,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -386,8 +489,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -398,8 +503,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -410,8 +517,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -422,8 +531,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -434,8 +545,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -446,8 +559,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -458,8 +573,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="DOM_Clobbering_Prevention_Cheat_Sheet.html" class="md-nav__link">
+        DOM Clobbering Prevention
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -470,8 +601,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -482,8 +615,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -494,8 +629,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -506,8 +643,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Django_REST_Framework_Cheat_Sheet.html" class="md-nav__link">
+        Django REST Framework
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -518,8 +671,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -530,8 +685,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -542,8 +699,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -554,8 +713,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -566,8 +727,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -578,8 +741,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -590,8 +755,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="HTTP_Headers_Cheat_Sheet.html" class="md-nav__link">
+        HTTP Headers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -602,8 +783,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Infrastructure_as_Code_Security_Cheat_Sheet.html" class="md-nav__link">
+        Infrastructure as Code Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -614,8 +811,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -626,8 +825,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -638,8 +839,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -650,8 +853,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -662,8 +867,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -674,8 +881,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -686,8 +895,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -698,8 +909,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -710,20 +923,24 @@
     </li>
   
 
+            
           
             
+              
   
   
   
     <li class="md-nav__item">
-      <a href="Laravel_CheatSheet.html" class="md-nav__link">
-        Laravel CheatSheet.md
+      <a href="Laravel_Cheat_Sheet.html" class="md-nav__link">
+        Laravel
       </a>
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -734,8 +951,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Logging_Vocabulary_Cheat_Sheet.html" class="md-nav__link">
+        Logging Vocabulary
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -746,8 +979,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Microservices_Security_Cheat_Sheet.html" class="md-nav__link">
+        Microservices Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -758,20 +1007,10 @@
     </li>
   
 
+            
           
             
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="Microservices_security.html" class="md-nav__link">
-        Microservices security.md
-      </a>
-    </li>
-  
-
-          
-            
+              
   
   
   
@@ -782,8 +1021,52 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NPM_Security_Cheat_Sheet.html" class="md-nav__link">
+        NPM Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Network_Segmentation_Cheat_Sheet.html" class="md-nav__link">
+        Network Segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NodeJS_Docker_Cheat_Sheet.html" class="md-nav__link">
+        NodeJS Docker
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -794,8 +1077,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -806,8 +1091,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -818,8 +1105,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -830,8 +1119,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -842,8 +1133,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -854,8 +1147,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -866,8 +1161,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -878,8 +1175,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -890,8 +1189,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -902,8 +1203,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -914,8 +1217,38 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Secrets_Management_Cheat_Sheet.html" class="md-nav__link">
+        Secrets Management
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Secure_Product_Design_Cheat_Sheet.html" class="md-nav__link">
+        Secure Product Design
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -926,8 +1259,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -938,8 +1273,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -950,8 +1287,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -962,8 +1301,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -974,8 +1315,10 @@
     </li>
   
 
+            
           
             
+              
   
   
     
@@ -983,7 +1326,7 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
         
@@ -999,6 +1342,7 @@
       </a>
       
         
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -1182,6 +1526,13 @@
           <li class="md-nav__item">
   <a href="#ms-tmt" class="md-nav__link">
     MS TMT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seasponge" class="md-nav__link">
+    SeaSponge
   </a>
   
 </li>
@@ -1407,8 +1758,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1419,8 +1772,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1431,8 +1786,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1443,8 +1800,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1455,8 +1814,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1467,8 +1828,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1479,8 +1842,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1491,8 +1856,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1503,8 +1870,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1515,8 +1884,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1527,6 +1898,35 @@
     </li>
   
 
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="XSS_Filter_Evasion_Cheat_Sheet.html" class="md-nav__link">
+        XSS Filter Evasion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="XS_Leaks_Cheat_Sheet.html" class="md-nav__link">
+        XS Leaks
+      </a>
+    </li>
+  
+
+            
           
         </ul>
       </nav>
@@ -1546,6 +1946,7 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -1729,6 +2130,13 @@
           <li class="md-nav__item">
   <a href="#ms-tmt" class="md-nav__link">
     MS TMT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seasponge" class="md-nav__link">
+    SeaSponge
   </a>
   
 </li>
@@ -1955,12 +2363,17 @@
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
-                
-                <h1 id="threat-modeling-cheat-sheet">Threat Modeling Cheat Sheet<a class="headerlink" href="#threat-modeling-cheat-sheet" title="Permanent link">&para;</a></h1>
+                  
+
+  
+  
+
+
+<h1 id="threat-modeling-cheat-sheet">Threat Modeling Cheat Sheet<a class="headerlink" href="#threat-modeling-cheat-sheet" title="Permanent link">&para;</a></h1>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
 <p>Threat modeling is a structured approach of identifying and prioritizing potential threats to a system, and determining the value that potential mitigations would have in reducing or neutralizing those threats. This cheat sheet aims to provide guidance on how to create threat models for both existing systems or applications as well as new systems.</p>
 <p>You do not need to be a security expert in order to implement the techniques covered in this cheat sheet. All developers, software and system designers, and architects should strive to include threat modeling in their software development life cycle. Optimally, you will create your threat models and determine which mitigations are needed during an early stage of the development of a new system, application, or feature. Assessing potential threats during the design phase of your project can save significant resources that might be needed to refactor the project to include risk mitigations during a later phase of the project.</p>
@@ -1982,6 +2395,7 @@
 <p><em>Mitigations</em> are controls that are put in place to reduce either the likelihood or the impact of a threat, while not necessarily completely preventing it. For example, if you store your user's passwords as hashes in a database, two users who have the same password will have the same hash. Thus, if an attacker has access to the hashed passwords and is able to determine the password associated with one hash, he is easily able to find all the other users who share the same password simply by looking for the same hash. However, if you <a href="Password_Storage_Cheat_Sheet.html#salting">add salts to each user's password</a>, the cost of this particular attack is greatly increased, as the attacker must crack each password individual. An increase in cost reduces the likelihood, and thus has <em>mitigated</em> the attack.</p>
 <p>A <em>data flow diagram</em> is a depiction of how information flows through your system. It shows each place that data is input into or output from each process or subsystem. It includes anywhere that data is stored in the system, either temporarily or long-term.</p>
 <p>A <em>trust boundary</em> (in the context of threat modeling) is a location on the data flow diagram where data changes its level of trust. Any place where data is passed between two processes is typically a trust boundary. If your application reads a file from disk, there's a trust boundary between the application and the file because outside processes and users can modify the data in the file. If your application makes a call to a remote process, or a remote process makes calls to your application, that's a trust boundary. If you read data from a database, there's typically a trust boundary because other processes can modify the data in the database. Any place you accept user input in any form is always a trust boundary.</p>
+<p>In addition to the above terminologies, it is important to be familiar with the key threat modeling principles defined in the <a href="https://www.threatmodelingmanifesto.org">Threat Modeling Manifesto</a> project. Those principles are considered throughout the following steps in this cheat sheet.</p>
 <h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
 <h3 id="define-business-objectives">Define Business Objectives<a class="headerlink" href="#define-business-objectives" title="Permanent link">&para;</a></h3>
 <p>Before starting the threat modeling process it is important to identify business objectives of the applications you are assessing, and to identify security and compliance requirements that may be necessary due to business or government regulation. Having these objectives and requirements in mind before the threat assessment begins will help you to evaluate the impact of any threat you find during the risk analysis process.</p>
@@ -2032,7 +2446,7 @@
 <h3 id="define-and-evaluate-your-assets">Define and Evaluate your Assets<a class="headerlink" href="#define-and-evaluate-your-assets" title="Permanent link">&para;</a></h3>
 <p>Assets involved in the information flow should be defined and evaluated according to their value of confidentiality, integrity and availability.</p>
 <h4 id="consider-data-in-transit-and-data-at-rest">Consider Data in transit and Data at rest<a class="headerlink" href="#consider-data-in-transit-and-data-at-rest" title="Permanent link">&para;</a></h4>
-<p>Data protection in transit is the protection of this data while it’s traveling from network to network or being transferred from a local storage device to a cloud storage device – wherever data is moving, effective data protection measures for in-transit data are critical as data is often considered less secure while in motion.</p>
+<p>Data protection in transit is the protection of this data while it’s travelling from network to network or being transferred from a local storage device to a cloud storage device – wherever data is moving, effective data protection measures for in-transit data are critical as data is often considered less secure while in motion.</p>
 <p>While data at rest is sometimes considered to be less vulnerable than data in transit, attackers often find data at rest a more valuable target than data in motion.</p>
 <p>The risk profile for data in transit or data at rest depends on the security measures that are in place to secure data in either state. Protecting sensitive data both in transit and at rest is imperative for modern enterprises as attackers find increasingly innovative ways to compromise systems and steal data.</p>
 <h3 id="create-an-information-flow-diagram">Create an information flow diagram<a class="headerlink" href="#create-an-information-flow-diagram" title="Permanent link">&para;</a></h3>
@@ -2043,11 +2457,13 @@
 <h4 id="use-tools-to-draw-your-diagram">Use tools to draw your diagram<a class="headerlink" href="#use-tools-to-draw-your-diagram" title="Permanent link">&para;</a></h4>
 <p>If you don’t like to manually draw your DFD; there are several tools available that could be used:</p>
 <h5 id="owasp-threat-dragon">OWASP Threat Dragon<a class="headerlink" href="#owasp-threat-dragon" title="Permanent link">&para;</a></h5>
-<p>The OWASP <a href="https://owasp.org/www-project-threat-dragon/">Threat Dragon project</a> is a cross platform tool that runs on Linux, macOS and Windows 10. Threat Dragon (TD) is used to create threat model diagrams and to record possible threats and decide on their mitigations using STRIDE methodology. TD is both a <a href="https://github.com/mike-goodwin/owasp-threat-dragon/releases/tag/v1.1">web application</a> and a <a href="https://github.com/mike-goodwin/owasp-threat-dragon-desktop/releases/tag/v1.1">desktop application</a>; in active development with version 1.1 released in March 2020.</p>
+<p>The OWASP <a href="https://owasp.org/www-project-threat-dragon/">Threat Dragon project</a> is a cross platform tool that runs on Linux, macOS and Windows 10. Threat Dragon (TD) is used to create threat model diagrams and to record possible threats and decide on their mitigations using STRIDE methodology. TD is both a web application and a desktop application; refer to the project's GitHub repository for the latest <a href="https://github.com/OWASP/threat-dragon/releases">release</a>.</p>
 <h5 id="poirot">Poirot<a class="headerlink" href="#poirot" title="Permanent link">&para;</a></h5>
 <p>The Poirot tool isolates and diagnoses defects through fault modeling and simulation. Along with a carefully selected partitioning strategy, functional and sequential test pattern applications show success with circuits having a high degree of observability.</p>
 <h5 id="ms-tmt">MS TMT<a class="headerlink" href="#ms-tmt" title="Permanent link">&para;</a></h5>
 <p>The Microsoft Threat Modeling Tool (TMT) helps find threats in the design phase of software projects. It is one of the longest lived threat modeling tools, having been introduced as Microsoft SDL in 2008, and is actively supported; <a href="https://aka.ms/threatmodelingtool">version 7.3</a> was released March 2020. It runs only on Windows 10 Anniversary Update or later, and so is difficult to use on macOS or Linux.</p>
+<h5 id="seasponge">SeaSponge<a class="headerlink" href="#seasponge" title="Permanent link">&para;</a></h5>
+<p><a href="https://github.com/mozilla/seasponge">SeaSponge</a> is an accessible web-based threat modeling tool. The tool provides an online <a href="http://mozilla.github.io/seasponge/#/">live Demo</a>.</p>
 <h3 id="define-data-flow-over-your-dfd">Define Data Flow over your DFD<a class="headerlink" href="#define-data-flow-over-your-dfd" title="Permanent link">&para;</a></h3>
 <p>Define Data Flows over the organization Data Flow Diagram.</p>
 <h3 id="define-trust-boundaries">Define Trust Boundaries<a class="headerlink" href="#define-trust-boundaries" title="Permanent link">&para;</a></h3>
@@ -2084,7 +2500,7 @@
 <li>Re-Define attack vectors to consider multi-step attacks.</li>
 </ul>
 <h3 id="mapping-abuse-cases-to-use-cases">Mapping Abuse Cases to Use Cases<a class="headerlink" href="#mapping-abuse-cases-to-use-cases" title="Permanent link">&para;</a></h3>
-<p>TODO</p>
+<p>This is a very important step that can help identifying application logical threats. List of all possible abuse cases should be developed for each application use case. Being familiar with the types of application logical attack is an important during the mapping process. You can refer to OWASP Testing Guide 4.0: Business Logic Testing and OWASP ASVS for more details.</p>
 <h3 id="re-define-attack-vectors">Re-Define attack vectors<a class="headerlink" href="#re-define-attack-vectors" title="Permanent link">&para;</a></h3>
 <p>In most cases after defining the attack vectors, the compromised user role could lead to further attacks into the application. For example, assuming that an internet banking user credentials could be compromised, the user of this cheat sheet has to then redefine the attack vectors that could result from compromising the user’s credentials and so on.</p>
 <h2 id="write-your-threat-traceability-matrix">Write your Threat traceability matrix<a class="headerlink" href="#write-your-threat-traceability-matrix" title="Permanent link">&para;</a></h2>
@@ -2104,18 +2520,14 @@
 <li><strong>D</strong>iscoverability - how easy it is to discover the threat?</li>
 </ul>
 <p><strong>DREAD</strong> formula is:</p>
-<div class="codehilite"><pre><span></span><code>Risk Value = (Damage + Affected users) x (Reproducibility + Exploitability + Discoverability).
-</code></pre></div>
-
+<p>Risk Value = (Damage + Affected users) x (Reproducibility + Exploitability + Discoverability).</p>
 <p>Then the risk level is determined using defined thresholds below.</p>
 <h4 id="pasta">PASTA<a class="headerlink" href="#pasta" title="Permanent link">&para;</a></h4>
 <p><a href="https://versprite.com/tag/pasta-threat-modeling/">PASTA</a>, Attack Simulation &amp; Threat Analysis (PASTA) is a complete methodology to perform application threat modeling. PASTA introduces a risk-centric methodology aimed at applying security countermeasures that are commensurate to the possible impact that could be sustained from defined threat models, vulnerabilities, weaknesses, and attack patterns.</p>
 <p>PASTA introduces a complete risk analysis and evaluation procedures that you can follow to evaluate the risk for each of the identified threat. The main difference in using PASTA Approach is that you should evaluate the impact early on in the analysis phase instead of addressing the impact at the step of evaluating the risk.</p>
 <p>The idea behind addressing the impact earlier in PASTA approach is that the audience that knows impact knows the consequences on a product or use case failures more than participants in the threat analysis phase.</p>
 <p>Application security risk assessments are not enough because they are very binary and leverage a control framework basis for denoting risks. It is recommended to contextually look at threats impacts, probability and effectiveness of countermeasures that may be present.</p>
-<div class="codehilite"><pre><span></span><code>R = (T * V * P * I) / Countermeasures
-</code></pre></div>
-
+<p>R = (T<em>V</em>P*I) / Countermeasures</p>
 <p>For more details <a href="https://owasp.org/www-pdf-archive/AppSecEU2012_PASTA.pdf">about PASTA</a>.</p>
 <h3 id="rank-risks">Rank Risks<a class="headerlink" href="#rank-risks" title="Permanent link">&para;</a></h3>
 <p>Using risk matrix rank risks from most severe to least severe based on Means, Motive &amp; Opportunity. Below is a sample risk matrix table, depending on your risk approach you can define different risk ranking matrix:</p>
@@ -2131,7 +2543,7 @@
 <p>For the assessors: After defining and analyzing the risks, the assessor should be working on the mitigation plan by firstly identifying risk owners which is the personnel that is responsible for mitigating the risk. i.e. one of the information security team or the development team.</p>
 <p>For the designers or the architects: they should assign the risk mitigation to the development team to consider it while building the application.</p>
 <h3 id="agree-on-risk-mitigation-with-risk-owners-and-stakeholders">Agree on risk mitigation with risk owners and stakeholders<a class="headerlink" href="#agree-on-risk-mitigation-with-risk-owners-and-stakeholders" title="Permanent link">&para;</a></h3>
-<p>TODO</p>
+<p>After identifying the risk owners, it is important to review the mitigation controls for each of the identified risks. Some controls might be inapplicable, you should propose other mitigation controls or discuss with the risk owners the possible compensation controls.</p>
 <h3 id="build-your-risk-treatment-strategy">Build your risk treatment strategy<a class="headerlink" href="#build-your-risk-treatment-strategy" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Reduce:</strong> building controls if the form of code upgrades, confirming a specific design for the application or building a specific configuration during the deployment phase to make sure that application risk is reduced.</li>
@@ -2147,75 +2559,44 @@
 <h3 id="reduce-risk-in-risk-log-for-verified-treated-risk">Reduce risk in risk log for verified treated risk<a class="headerlink" href="#reduce-risk-in-risk-log-for-verified-treated-risk" title="Permanent link">&para;</a></h3>
 <p>After applying the mitigation and measuring the new risk value, the user of this cheat sheet should update the risk log to verify that risk has been reduced.</p>
 <h3 id="periodically-retest-risk">Periodically retest risk<a class="headerlink" href="#periodically-retest-risk" title="Permanent link">&para;</a></h3>
-<p>TODO</p>
+<p>Application threat modeling is an ongoing process, in addition to the changes that might be happened to the application that may require re-evaluating the expected threats, it is also important to do periodic retest for the identified risks and the implemented risk treatments.</p>
 <h2 id="appendix">Appendix<a class="headerlink" href="#appendix" title="Permanent link">&para;</a></h2>
-<p>TODO: <em>Sample Design for Implementation View in 4+1 Model</em></p>
-<p>TODO: <em>Sample Design for Implementation View in 4+1 Model</em></p>
-                
-                  
-                
-              
-              
-                
+<ul>
+<li>Mikko Kontio, Architectural manifesto: Designing software architectures, Part 5.</li>
+<li>Hui LM, Leung CW, Fan CK and Wong TN, "modeling agent-based systems with UML". Proceedings of the Fifth Asia Pacific Industrial Engineering and Management Systems Conference.</li>
+<li>References for the “4+1” View Model of Software Architecture: Kruchten, Philippe. Architectural Blueprints — The “4+1” View Model of Software Architecture. IEEE Software 12 (6), pp. 42-50.</li>
+</ul>
 
 
-              
-            </article>
-          </div>
+
+
+
+                
+              </article>
+            </div>
+          
+          
         </div>
         
       </main>
       
-        
-<footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-        <a href="Third_Party_Javascript_Management_Cheat_Sheet.html" class="md-footer__link md-footer__link--prev" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Third Party Javascript Management
-            </div>
-          </div>
-        </a>
-      
-      
-        <a href="Transaction_Authorization_Cheat_Sheet.html" class="md-footer__link md-footer__link--next" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Transaction Authorization
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
+        <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
-        
-          <div class="md-footer-copyright__highlight">
-            ©Copyright 2021 - CheatSheets Series Team - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.
-          </div>
-        
-        Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-          Material for MkDocs
-        </a>
-        
-      </div>
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ©Copyright 2021 - CheatSheets Series Team - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
       
     </div>
   </div>
@@ -2225,10 +2606,11 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.4ea5477f.min.js"></script>
+      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
       
     
   </body>

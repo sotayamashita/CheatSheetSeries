@@ -10,11 +10,16 @@
       
       
       
-      
         <link rel="canonical" href="https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html">
       
+      
+        <link rel="prev" href="Input_Validation_Cheat_Sheet.html">
+      
+      
+        <link rel="next" href="JAAS_Cheat_Sheet.html">
+      
       <link rel="icon" href="../assets/WebSite_Favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.2">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.6">
     
     
       
@@ -22,30 +27,30 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6f955dcd.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
         
-      
-    
-    
-    
-      
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
-    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
-        
-<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){var e;this.value&&(e=document.location.pathname,ga("send","pageview",e+"?q="+this.value))}),"undefined"!=typeof location$&&location$.subscribe(function(e){ga("send","pageview",e.pathname)})})</script>
-<script async src="https://www.google-analytics.com/analytics.js"></script>
-      
+
+    
     
     
   </head>
@@ -53,13 +58,16 @@
   
     
     
+      
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
   
     
-    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -76,15 +84,20 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
+    <a href="../index.html" title="OWASP Cheat Sheet Series" class="md-header__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -103,24 +116,47 @@
       </div>
     </div>
     
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
-      
-<div class="md-search" data-md-component="search" role="dialog">
+      <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
-      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-      </button>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
@@ -128,7 +164,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -137,11 +173,10 @@
     
     
       <div class="md-header__source">
-        
-<a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     OWASP/CheatSheetSeries
@@ -150,11 +185,14 @@
       </div>
     
   </nav>
+  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
+        
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -170,7 +208,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
+    <a href="../index.html" title="OWASP Cheat Sheet Series" class="md-nav__button md-logo" aria-label="OWASP Cheat Sheet Series" data-md-component="logo">
       
   <img src="../assets/OWASP_Logo_Transp.png" alt="logo">
 
@@ -179,11 +217,10 @@
   </label>
   
     <div class="md-nav__source">
-      
-<a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/OWASP/CheatSheetSeries" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     OWASP/CheatSheetSeries
@@ -246,8 +283,38 @@
   
   
     <li class="md-nav__item">
+      <a href="../IndexMASVS.html" class="md-nav__link">
+        Index MASVS
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../IndexProactiveControls.html" class="md-nav__link">
         Index Proactive Controls
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../IndexTopTen.html" class="md-nav__link">
+        Index Top 10
       </a>
     </li>
   
@@ -266,20 +333,26 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
       
-      <label class="md-nav__link" for="__nav_5">
-        Cheatsheets
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="Cheatsheets" data-md-level="1">
-        <label class="md-nav__title" for="__nav_5">
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Cheatsheets
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_7">
           <span class="md-nav__icon md-icon"></span>
           Cheatsheets
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+              
   
   
   
@@ -290,8 +363,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -302,8 +377,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -314,8 +391,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -326,8 +405,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -338,8 +419,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Authorization_Cheat_Sheet.html" class="md-nav__link">
+        Authorization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -350,8 +447,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -362,8 +461,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -374,8 +475,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -386,8 +489,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -398,8 +503,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -410,8 +517,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -422,8 +531,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -434,8 +545,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -446,8 +559,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -458,8 +573,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="DOM_Clobbering_Prevention_Cheat_Sheet.html" class="md-nav__link">
+        DOM Clobbering Prevention
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -470,8 +601,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -482,8 +615,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -494,8 +629,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -506,8 +643,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Django_REST_Framework_Cheat_Sheet.html" class="md-nav__link">
+        Django REST Framework
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -518,8 +671,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -530,8 +685,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -542,8 +699,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -554,8 +713,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -566,8 +727,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -578,8 +741,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -590,8 +755,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="HTTP_Headers_Cheat_Sheet.html" class="md-nav__link">
+        HTTP Headers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -602,8 +783,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Infrastructure_as_Code_Security_Cheat_Sheet.html" class="md-nav__link">
+        Infrastructure as Code Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -614,8 +811,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -626,8 +825,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -638,8 +839,10 @@
     </li>
   
 
+            
           
             
+              
   
   
     
@@ -647,7 +850,7 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
         
@@ -663,6 +866,7 @@
       </a>
       
         
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -725,8 +929,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -737,8 +943,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -749,8 +957,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -761,8 +971,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -773,8 +985,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -785,20 +999,24 @@
     </li>
   
 
+            
           
             
+              
   
   
   
     <li class="md-nav__item">
-      <a href="Laravel_CheatSheet.html" class="md-nav__link">
-        Laravel CheatSheet.md
+      <a href="Laravel_Cheat_Sheet.html" class="md-nav__link">
+        Laravel
       </a>
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -809,8 +1027,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Logging_Vocabulary_Cheat_Sheet.html" class="md-nav__link">
+        Logging Vocabulary
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -821,8 +1055,24 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Microservices_Security_Cheat_Sheet.html" class="md-nav__link">
+        Microservices Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -833,20 +1083,10 @@
     </li>
   
 
+            
           
             
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="Microservices_security.html" class="md-nav__link">
-        Microservices security.md
-      </a>
-    </li>
-  
-
-          
-            
+              
   
   
   
@@ -857,8 +1097,52 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NPM_Security_Cheat_Sheet.html" class="md-nav__link">
+        NPM Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Network_Segmentation_Cheat_Sheet.html" class="md-nav__link">
+        Network Segmentation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NodeJS_Docker_Cheat_Sheet.html" class="md-nav__link">
+        NodeJS Docker
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -869,8 +1153,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -881,8 +1167,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -893,8 +1181,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -905,8 +1195,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -917,8 +1209,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -929,8 +1223,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -941,8 +1237,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -953,8 +1251,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -965,8 +1265,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -977,8 +1279,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -989,8 +1293,38 @@
     </li>
   
 
+            
           
             
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Secrets_Management_Cheat_Sheet.html" class="md-nav__link">
+        Secrets Management
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Secure_Product_Design_Cheat_Sheet.html" class="md-nav__link">
+        Secure Product Design
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
   
   
   
@@ -1001,8 +1335,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1013,8 +1349,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1025,8 +1363,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1037,8 +1377,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1049,8 +1391,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1061,8 +1405,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1073,8 +1419,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1085,8 +1433,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1097,8 +1447,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1109,8 +1461,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1121,8 +1475,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1133,8 +1489,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1145,8 +1503,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1157,8 +1517,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1169,8 +1531,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -1181,6 +1545,35 @@
     </li>
   
 
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="XSS_Filter_Evasion_Cheat_Sheet.html" class="md-nav__link">
+        XSS Filter Evasion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="XS_Leaks_Cheat_Sheet.html" class="md-nav__link">
+        XS Leaks
+      </a>
+    </li>
+  
+
+            
           
         </ul>
       </nav>
@@ -1200,6 +1593,7 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -1263,28 +1657,32 @@
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
-                
-                <h1 id="insecure-direct-object-reference-prevention-cheat-sheet">Insecure Direct Object Reference Prevention Cheat Sheet<a class="headerlink" href="#insecure-direct-object-reference-prevention-cheat-sheet" title="Permanent link">&para;</a></h1>
+                  
+
+  
+  
+
+
+<h1 id="insecure-direct-object-reference-prevention-cheat-sheet">Insecure Direct Object Reference Prevention Cheat Sheet<a class="headerlink" href="#insecure-direct-object-reference-prevention-cheat-sheet" title="Permanent link">&para;</a></h1>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
-<p><strong>I</strong>nsecure <strong>D</strong>irect <strong>O</strong>bject <strong>R</strong>eference (called <strong>IDOR</strong> from here) occurs when a application exposes a reference to an internal implementation object. Using this way, it reveals the real identifier and format/pattern used of the element in the storage backend side. The most common example of it (although is not limited to this one) is a record identifier in a storage system (database, filesystem and so on).</p>
-<p>IDOR is referenced in element <a href="https://wiki.owasp.org/index.php/Top_10_2013-A4-Insecure_Direct_Object_References">A4</a> of the OWASP Top 10 in the 2013 edition.</p>
+<p><strong>I</strong>nsecure <strong>D</strong>irect <strong>O</strong>bject <strong>R</strong>eference (called <strong>IDOR</strong> from here) occurs when a application exposes a reference to an internal implementation object. Using this method, an IDOR reveals the real identifier and format or pattern used of the element in the storage backend. The most common example is of a record identifier in a storage system such as a database or filesystem, though these are not the only examples.</p>
+<p>IDOR is referenced in element <a href="https://wiki.owasp.org/index.php/Top_10_2013-A4-Insecure_Direct_Object_References">A4</a> of the OWASP Top 10, in the 2013 edition.</p>
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
-<p>IDOR do not bring a direct security issue because, by itself, it reveals only the format/pattern used for the object identifier. IDOR bring, depending on the format/pattern in place, a capacity for the attacker to mount a enumeration attack in order to try to probe access to the associated objects.</p>
-<p>Enumeration attack can be described in the way in which the attacker build a collection of valid identifiers using the discovered format/pattern and test them against the application.</p>
+<p>IDOR does not create a direct security issue itself because, by itself, it reveals only the format or pattern used for the object identifier. However, IDOR brings, depending on the format or pattern in place, a capacity for the attacker to mount an enumeration attack, allowing the attacker to try to probe access to the associated objects.</p>
+<p>Enumeration attacks can be described in the way in which the attacker builds a collection of valid identifiers using the discovered format or pattern, and tests them against the application.</p>
 <p><strong>For example:</strong></p>
-<p>Imagine an HR application exposing a service accepting employee ID in order to return the employee information and for which the format/pattern of the employee ID is the following:</p>
-<div class="codehilite"><pre><span></span><code>EMP-00000
+<p>Imagine an HR application exposing a service accepting employee IDs in order to return employee information, and for which the format or pattern of the employee ID is the following:</p>
+<div class="highlight"><pre><span></span><code>EMP-00000
 EMP-00001
 EMP-00002
 ...
 </code></pre></div>
-
-<p>Based on this, an attacker can build a collection of valid ID from <em>EMP-00000</em> to <em>EMP-99999</em>.</p>
-<p>To be exploited, an IDOR issue must be combined with an <a href="Access_Control_Cheat_Sheet.html">Access Control</a> issue because it's the Access Control issue that "allow" the attacker to access to the object for which he have guessed the identifier through is enumeration attack.</p>
+<p>Based on this, an attacker can build a collection of valid IDs from <em>EMP-00000</em> to <em>EMP-99999</em>.</p>
+<p>To be exploited, an IDOR issue must be combined with an <a href="Access_Control_Cheat_Sheet.html">Access Control</a> issue, because it's the Access Control issue that "allows" the attacker to access the object for which they have guessed the identifier through the enumeration attack.</p>
 <h2 id="additional-remarks">Additional remarks<a class="headerlink" href="#additional-remarks" title="Permanent link">&para;</a></h2>
 <p><strong>From Jeff Williams</strong>:</p>
 <p>Direct Object Reference is fundamentally a Access Control problem. We split it out to emphasize the difference between URL access control and data layer access control. You can't do anything about the data-layer problems with URL access control. And they're not really input validation problems either. But we see DOR manipulation all the time. If we list only "Messed-up from the Floor-up Access Control" then people will probably only put in SiteMinder or JEE declarative access control on URLs and call it a day. That's what we're trying to avoid.</p>
@@ -1294,33 +1692,33 @@ EMP-00002
 <p>I'm "down" with DOR's for files, directories, etc. But not so much for ALL databases primary keys. That's just insane, like you are suggesting. I think that anytime database primary keys are exposed, an access control rule is required. There is no way to practically DOR all database primary keys in a real enterprise or post-enterprise system.</p>
 <p>But, suppose a user has a list of accounts, like a bank where database ID 23456 is their checking account. I'd DOR that in a heartbeat. You need to be prudent about this.</p>
 <h2 id="objective">Objective<a class="headerlink" href="#objective" title="Permanent link">&para;</a></h2>
-<p>This article propose an idea to prevent the exposure of real identifier in a simple, portable and stateless way because the proposal need to handle Session and Session-less application topologies.</p>
+<p>This article proposes an idea to prevent the exposure of real identifiers in a simple, portable, and stateless way because the proposal needs to handle session and session-less application topologies.</p>
 <h2 id="proposition">Proposition<a class="headerlink" href="#proposition" title="Permanent link">&para;</a></h2>
-<p>The proposal use a hash to replace the direct identifier. This hash is salted with a value defined at application level in order support topology in which the application is deployed in multi-instances mode (case for production).</p>
-<p>Using a hash allow the following properties:</p>
+<p>The proposal uses a hash to replace the direct identifier. This hash is salted with a value defined at the application level to support topologies in which the application is deployed in multi-instance mode, such as in production environments.</p>
+<p>Using a hash enables the following properties:</p>
 <ul>
-<li>Do not require to maintain a mapping table (real ID vs front end ID) in user session or application level cache.</li>
-<li>Makes creation of a collection a enumeration values more difficult to achieve because, even if attacker can guess the hash algorithm from the ID size, it cannot reproduce value due to the salt that is not tied to the hidden value.</li>
+<li>Allows the absence of a mapping table—-real ID vs front-end ID—-in user session or application level caches.</li>
+<li>Makes creation of the collection of enumeration values more difficult to achieve because, even if an attacker guesses the hash algorithm from the ID size, he cannot reproduce value, thanks to the salt.</li>
 </ul>
-<p>This is the implementation of the utility class that generate the identifier to use for exchange with the front end side:</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">javax.xml.bind.DatatypeConverter</span><span class="p">;</span>
-<span class="kn">import</span> <span class="nn">java.io.UnsupportedEncodingException</span><span class="p">;</span>
-<span class="kn">import</span> <span class="nn">java.security.MessageDigest</span><span class="p">;</span>
-<span class="kn">import</span> <span class="nn">java.security.NoSuchAlgorithmException</span><span class="p">;</span>
+<p>This is the implementation of the utility class that generates the the identifier to use for an exchange with the front-end:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">javax.xml.bind.DatatypeConverter</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.io.UnsupportedEncodingException</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.security.MessageDigest</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.security.NoSuchAlgorithmException</span><span class="p">;</span>
 
 <span class="cm">/**</span>
 <span class="cm"> * Handle the creation of ID that will be send to front end side</span>
 <span class="cm"> * in order to prevent IDOR</span>
 <span class="cm"> */</span>
 
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">IDORUtil</span> <span class="p">{</span>
-    <span class="cm">/**</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">IDORUtil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/**</span>
 <span class="cm">     * SALT used for the generation of the HASH of the real item identifier</span>
 <span class="cm">     * in order to prevent to forge it on front end side.</span>
 <span class="cm">     */</span>
-    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SALT</span> <span class="o">=</span> <span class="s">&quot;[READ_IT_FROM_APP_CONFIGURATION]&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">SALT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;[READ_IT_FROM_APP_CONFIGURATION]&quot;</span><span class="p">;</span>
 
-    <span class="cm">/**</span>
+<span class="w">    </span><span class="cm">/**</span>
 <span class="cm">     * Compute a identifier that will be send to the front end and be used as item</span>
 <span class="cm">     * unique identifier on client side.</span>
 <span class="cm">     *</span>
@@ -1331,58 +1729,57 @@ EMP-00002
 <span class="cm">     * @throws NoSuchAlgorithmException If the hashing algorithm used is not</span>
 <span class="cm">     *                                  supported is not available</span>
 <span class="cm">     */</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">computeFrontEndIdentifier</span><span class="p">(</span><span class="n">String</span> <span class="n">realItemBackendIdentifier</span><span class="p">)</span>
-     <span class="kd">throws</span> <span class="n">NoSuchAlgorithmException</span><span class="p">,</span> <span class="n">UnsupportedEncodingException</span> <span class="p">{</span>
-        <span class="n">String</span> <span class="n">frontEndId</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">realItemBackendIdentifier</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">realItemBackendIdentifier</span><span class="p">.</span><span class="na">trim</span><span class="p">().</span><span class="na">isEmpty</span><span class="p">())</span> <span class="p">{</span>
-            <span class="c1">//Prefix the value with the SALT</span>
-            <span class="n">String</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">SALT</span> <span class="o">+</span> <span class="n">realItemBackendIdentifier</span><span class="p">;</span>
-            <span class="c1">//Get and configure message digester</span>
-            <span class="c1">//We use SHA1 here for the following reason even if SHA1 have now potential collision:</span>
-            <span class="c1">//1. We do not store sensitive information, just technical ID</span>
-            <span class="c1">//2. We want that the ID stay short but not guessable</span>
-            <span class="c1">//3. We want that a maximum of backend storage support the algorithm used in order to compute it in selection query/request</span>
-            <span class="c1">//If your backend storage supports SHA256 so use it instead of SHA1</span>
-            <span class="n">MessageDigest</span> <span class="n">digester</span> <span class="o">=</span> <span class="n">MessageDigest</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;sha1&quot;</span><span class="p">);</span>
-            <span class="c1">//Compute the hash</span>
-            <span class="kt">byte</span><span class="o">[]</span> <span class="n">hash</span> <span class="o">=</span> <span class="n">digester</span><span class="p">.</span><span class="na">digest</span><span class="p">(</span><span class="n">tmp</span><span class="p">.</span><span class="na">getBytes</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">));</span>
-            <span class="c1">//Encode is in HEX</span>
-            <span class="n">frontEndId</span> <span class="o">=</span> <span class="n">DatatypeConverter</span><span class="p">.</span><span class="na">printHexBinary</span><span class="p">(</span><span class="n">hash</span><span class="p">);</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="n">frontEndId</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">computeFrontEndIdentifier</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">realItemBackendIdentifier</span><span class="p">)</span>
+<span class="w">     </span><span class="kd">throws</span><span class="w"> </span><span class="n">NoSuchAlgorithmException</span><span class="p">,</span><span class="w"> </span><span class="n">UnsupportedEncodingException</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">frontEndId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">realItemBackendIdentifier</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">realItemBackendIdentifier</span><span class="p">.</span><span class="na">trim</span><span class="p">().</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">//Prefix the value with the SALT</span>
+<span class="w">            </span><span class="n">String</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SALT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">realItemBackendIdentifier</span><span class="p">;</span>
+<span class="w">            </span><span class="c1">//Get and configure message digester</span>
+<span class="w">            </span><span class="c1">//We use SHA1 here for the following reason even if SHA1 have now potential collision:</span>
+<span class="w">            </span><span class="c1">//1. We do not store sensitive information, just technical ID</span>
+<span class="w">            </span><span class="c1">//2. We want that the ID stay short but not guessable</span>
+<span class="w">            </span><span class="c1">//3. We want that a maximum of backend storage support the algorithm used in order to compute it in selection query/request</span>
+<span class="w">            </span><span class="c1">//If your backend storage supports SHA256 so use it instead of SHA1</span>
+<span class="w">            </span><span class="n">MessageDigest</span><span class="w"> </span><span class="n">digester</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MessageDigest</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;sha1&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="c1">//Compute the hash</span>
+<span class="w">            </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digester</span><span class="p">.</span><span class="na">digest</span><span class="p">(</span><span class="n">tmp</span><span class="p">.</span><span class="na">getBytes</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">));</span>
+<span class="w">            </span><span class="c1">//Encode is in HEX</span>
+<span class="w">            </span><span class="n">frontEndId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DatatypeConverter</span><span class="p">.</span><span class="na">printHexBinary</span><span class="p">(</span><span class="n">hash</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">frontEndId</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 <p>This is the example of services using the front identifier:</p>
-<div class="codehilite"><pre><span></span><code><span class="cm">/**</span>
+<div class="highlight"><pre><span></span><code><span class="cm">/**</span>
 <span class="cm"> * Service to list all available movies</span>
 <span class="cm"> *</span>
 <span class="cm"> * @return The collection of movies ID and name as JSON response</span>
 <span class="cm"> */</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/movies&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">GET</span><span class="p">,</span> <span class="n">produces</span> <span class="o">=</span> <span class="p">{</span><span class="n">MediaType</span><span class="p">.</span><span class="na">APPLICATION_JSON_VALUE</span><span class="p">})</span>
-<span class="kd">public</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="nf">listAllMovies</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/movies&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GET</span><span class="p">,</span><span class="w"> </span><span class="n">produces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">MediaType</span><span class="p">.</span><span class="na">APPLICATION_JSON_VALUE</span><span class="p">})</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">listAllMovies</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
 
-    <span class="k">try</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="na">movies</span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span><span class="n">m</span> <span class="o">-&gt;</span> <span class="p">{</span>
-            <span class="k">try</span> <span class="p">{</span>
-                <span class="c1">//Compute the front end ID fof the current element</span>
-                <span class="n">String</span> <span class="n">frontEndId</span> <span class="o">=</span> <span class="n">IDORUtil</span><span class="p">.</span><span class="na">computeFrontEndIdentifier</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">getBackendIdentifier</span><span class="p">());</span>
-                <span class="c1">//Add the computed ID and the associated item name to the result map</span>
-                <span class="n">result</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">frontEndId</span><span class="p">,</span> <span class="n">m</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
-            <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
-                <span class="n">LOGGER</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">&quot;Error during ID generation for real ID {}: {}&quot;</span><span class="p">,</span> <span class="n">m</span><span class="p">.</span><span class="na">getBackendIdentifier</span><span class="p">(),</span>
-                             <span class="n">e</span><span class="p">.</span><span class="na">getMessage</span><span class="p">());</span>
-            <span class="p">}</span>
-        <span class="p">});</span>
-    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
-        <span class="c1">//Ensure that in case of error no item is returned</span>
-        <span class="n">result</span><span class="p">.</span><span class="na">clear</span><span class="p">();</span>
-        <span class="n">LOGGER</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">&quot;Error during processing&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">movies</span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">//Compute the front end ID for the current element</span>
+<span class="w">                </span><span class="n">String</span><span class="w"> </span><span class="n">frontEndId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IDORUtil</span><span class="p">.</span><span class="na">computeFrontEndIdentifier</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">getBackendIdentifier</span><span class="p">());</span>
+<span class="w">                </span><span class="c1">//Add the computed ID and the associated item name to the result map</span>
+<span class="w">                </span><span class="n">result</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">frontEndId</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">LOGGER</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">&quot;Error during ID generation for real ID {}: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="na">getBackendIdentifier</span><span class="p">(),</span>
+<span class="w">                             </span><span class="n">e</span><span class="p">.</span><span class="na">getMessage</span><span class="p">());</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">//Ensure that in case of error no item is returned</span>
+<span class="w">        </span><span class="n">result</span><span class="p">.</span><span class="na">clear</span><span class="p">();</span>
+<span class="w">        </span><span class="n">LOGGER</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">&quot;Error during processing&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="cm">/**</span>
@@ -1391,113 +1788,77 @@ EMP-00002
 <span class="cm"> * @param id Movie identifier from a front end point of view</span>
 <span class="cm"> * @return The movie object as JSON response</span>
 <span class="cm"> */</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/movies/{id}&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">GET</span><span class="p">,</span> <span class="n">produces</span> <span class="o">=</span> <span class="p">{</span><span class="n">MediaType</span><span class="p">.</span><span class="na">APPLICATION_JSON_VALUE</span><span class="p">})</span>
-<span class="kd">public</span> <span class="n">Movie</span> <span class="nf">obtainMovieName</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">id</span><span class="p">)</span> <span class="p">{</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/movies/{id}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GET</span><span class="p">,</span><span class="w"> </span><span class="n">produces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">MediaType</span><span class="p">.</span><span class="na">APPLICATION_JSON_VALUE</span><span class="p">})</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">Movie</span><span class="w"> </span><span class="nf">obtainMovieName</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
-    <span class="c1">//Search for the wanted movie information using Front End Identifier</span>
-    <span class="n">Optional</span><span class="o">&lt;</span><span class="n">Movie</span><span class="o">&gt;</span> <span class="n">movie</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="na">movies</span><span class="p">.</span><span class="na">stream</span><span class="p">().</span><span class="na">filter</span><span class="p">(</span><span class="n">m</span> <span class="o">-&gt;</span> <span class="p">{</span>
-        <span class="kt">boolean</span> <span class="n">match</span><span class="p">;</span>
-        <span class="k">try</span> <span class="p">{</span>
-            <span class="c1">//Compute the front end ID for the current element</span>
-            <span class="n">String</span> <span class="n">frontEndId</span> <span class="o">=</span> <span class="n">IDORUtil</span><span class="p">.</span><span class="na">computeFrontEndIdentifier</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">getBackendIdentifier</span><span class="p">());</span>
-            <span class="c1">//Check if the computed ID match the one provided</span>
-            <span class="n">match</span> <span class="o">=</span> <span class="n">frontEndId</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
-        <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
-            <span class="c1">//Ensure that in case of error no item is returned</span>
-            <span class="n">match</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
-            <span class="n">LOGGER</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">&quot;Error during processing&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">);</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="n">match</span><span class="p">;</span>
-    <span class="p">}).</span><span class="na">findFirst</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">//Search for the wanted movie information using Front End Identifier</span>
+<span class="w">    </span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">Movie</span><span class="o">&gt;</span><span class="w"> </span><span class="n">movie</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">movies</span><span class="p">.</span><span class="na">stream</span><span class="p">().</span><span class="na">filter</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">boolean</span><span class="w"> </span><span class="n">match</span><span class="p">;</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">//Compute the front end ID for the current element</span>
+<span class="w">            </span><span class="n">String</span><span class="w"> </span><span class="n">frontEndId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IDORUtil</span><span class="p">.</span><span class="na">computeFrontEndIdentifier</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">getBackendIdentifier</span><span class="p">());</span>
+<span class="w">            </span><span class="c1">//Check if the computed ID match the one provided</span>
+<span class="w">            </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frontEndId</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">//Ensure that in case of error no item is returned</span>
+<span class="w">            </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">            </span><span class="n">LOGGER</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">&quot;Error during processing&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}).</span><span class="na">findFirst</span><span class="p">();</span>
 
-    <span class="c1">//We have marked the Backend Identifier class field as excluded</span>
-    <span class="c1">//from the serialization</span>
-    <span class="c1">//So we can send the object to front end through the serializer</span>
-    <span class="k">return</span> <span class="n">movie</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">//We have marked the Backend Identifier class field as excluded</span>
+<span class="w">    </span><span class="c1">//from the serialization</span>
+<span class="w">    </span><span class="c1">//So we can send the object to front end through the serializer</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">movie</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
-
 <p>This is the value object used:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Movie</span> <span class="p">{</span>
-    <span class="cm">/**</span>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Movie</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/**</span>
 <span class="cm">     * We indicate to serializer that this field must never be serialized</span>
 <span class="cm">     *</span>
 <span class="cm">     * @see &quot;https://fasterxml.github.io/jackson-annotations/javadoc/2.5/com/fasterxml/</span>
 <span class="cm">     *       jackson/annotation/JsonIgnore.html&quot;</span>
 <span class="cm">     */</span>
-    <span class="nd">@JsonIgnore</span>
-    <span class="kd">private</span> <span class="n">String</span> <span class="n">backendIdentifier</span><span class="p">;</span>
+<span class="w">    </span><span class="nd">@JsonIgnore</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">backendIdentifier</span><span class="p">;</span>
 <span class="p">...</span>
 <span class="p">}</span>
 </code></pre></div>
-
 <h2 id="sources-of-the-prototype">Sources of the prototype<a class="headerlink" href="#sources-of-the-prototype" title="Permanent link">&para;</a></h2>
 <p><a href="https://github.com/righettod/poc-idor">GitHub repository</a>.</p>
-                
-                  
-                
-              
-              
-                
 
 
-              
-            </article>
-          </div>
+
+
+
+                
+              </article>
+            </div>
+          
+          
         </div>
         
       </main>
       
-        
-<footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-        <a href="Input_Validation_Cheat_Sheet.html" class="md-footer__link md-footer__link--prev" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Input Validation
-            </div>
-          </div>
-        </a>
-      
-      
-        <a href="JAAS_Cheat_Sheet.html" class="md-footer__link md-footer__link--next" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              JAAS
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
+        <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
-        
-          <div class="md-footer-copyright__highlight">
-            ©Copyright 2021 - CheatSheets Series Team - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.
-          </div>
-        
-        Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-          Material for MkDocs
-        </a>
-        
-      </div>
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ©Copyright 2021 - CheatSheets Series Team - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/deed.en_US">Creative Commons Attribution 3.0 Unported License</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
       
     </div>
   </div>
@@ -1507,10 +1868,11 @@ EMP-00002
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.4ea5477f.min.js"></script>
+      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
       
     
   </body>
