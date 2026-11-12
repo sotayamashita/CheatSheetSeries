@@ -66,19 +66,11 @@ By default, protection against XSS comes as the default behavior. When string da
 
 # Wrong! Do not do this!
 <%= @product.name.html_safe %>
-
-# Wrong! Do not do this!
-<%= content_tag @product.name %>
 ```
 
-Unfortunately, any field that uses `raw`, `html_safe`, `content_tag` or similar like this will be a potential XSS target. Note that there are also widespread misunderstandings about `html_safe()`.
+Unfortunately, any field that uses `raw`, `html_safe` or similar like this will be a potential XSS target. Note that there are also widespread misunderstandings about `html_safe()`.
 
-[This writeup](https://stackoverflow.com/questions/4251284/raw-vs-html-safe-vs-h-to-unescape-html) describes the underlying SafeBuffer mechanism in detail. Other tags that change the way strings are prepared for output can introduce similar issues, including content_tag.
-
-``` ruby
-content_tag("/><script>alert('hack!');</script>") # XSS example
-# produces: </><script>alert('hack!');</script>><//><script>alert('hack!');</script>>
-```
+[This writeup](https://stackoverflow.com/questions/4251284/raw-vs-html-safe-vs-h-to-unescape-html) describes the underlying SafeBuffer mechanism in detail. Other tags that change the way strings are prepared for output can introduce similar issues.
 
 The method `html_safe` of String is somewhat confusingly named. It means that we know for sure the content of the string is safe to include in HTML without escaping. **This method itself is un-safe!**
 
@@ -86,27 +78,21 @@ If you must accept HTML content from users, consider a markup language for rich 
 
 If you cannot restrict your users from entering HTML, consider implementing content security policy to disallow the execution of any JavaScript. And finally, consider using the `#sanitize` method that lets you list allowed tags. Be careful, this method has been shown to be flawed numerous times and will never be a complete solution.
 
-An often overlooked XSS attack vector for older versions of rails is the `href` value of a link:
+User-controlled link destinations require URL validation in addition to HTML escaping:
 
 ``` ruby
 <%= link_to "Personal Website", @user.website %>
 ```
 
-If `@user.website` contains a link that starts with `javascript:`, the content will execute when a user clicks the generated link:
+If `@user.website` contains a `javascript:` URL, clicking the generated link can execute script:
 
 ``` html
 <a href="javascript:alert('Haxored')">Personal Website</a>
 ```
 
-Newer Rails versions escape such links in a better way.
+[`link_to`](https://api.rubyonrails.org/classes/ActionView/Helpers/UrlHelper.html#method-i-link_to) does not enforce a URL-scheme allowlist. Validate personal website URLs to allow only `https` or `http` before rendering them, and retain HTML attribute escaping. See the [XSS prevention rules](Cross_Site_Scripting_Prevention_Cheat_Sheet.md#xss-prevention-rules-summary) for URL validation and encoding requirements. Do not use `html_safe` to bypass escaping.
 
-``` ruby
-link_to "Personal Website", 'javascript:alert(1);'.html_safe()
-# Will generate:
-# "<a href="javascript:alert(1);">Personal Website</a>"
-```
-
-Using [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) is one more security measure to forbid execution for links starting with `javascript:` .
+A restrictive Content Security Policy can additionally [block `javascript:` navigation](https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Schemes/javascript#description), but it does not replace URL validation.
 
 [Brakeman scanner](https://github.com/presidentbeef/brakeman) helps in finding XSS problems in Rails apps.
 
@@ -137,9 +123,9 @@ config.force_ssl = true
 
 Uncomment the line 3 as above in your configuration.
 
-Generally speaking, Rails does not provide authentication by itself. However, most developers using Rails leverage libraries such as Devise or AuthLogic to provide authentication.
+Rails 8.0 introduced a built-in [authentication generator](https://guides.rubyonrails.org/security.html#authentication) for basic authentication and password reset functionality. It is a starting point that must be adapted to the application, including implementing its sign-up flow. Libraries such as Devise remain another option.
 
-To enable authentication it is possible to use Devise gem.
+The following examples use the Devise gem.
 
 Install it using:
 
@@ -233,9 +219,9 @@ There is an [Authentication Cheat Sheet](Authentication_Cheat_Sheet.md).
 
 By default, Ruby on Rails apps use a RESTful URI structure. That means that paths are often intuitive and guessable. To protect against a user trying to access or modify data that belongs to another user, it is important to specifically control actions. Out of the gate on a vanilla Rails application, there is no such built-in protection. It is possible to do this by hand at the controller level.
 
-It is also possible, and probably recommended, to consider resource-based access control libraries such as [cancancan](https://github.com/CanCanCommunity/cancancan) (cancan replacement) or [pundit](https://github.com/elabs/pundit) to do this. This ensures that all operations on a database object are authorized by the business logic of the application.
+It is also possible, and probably recommended, to consider resource-based access control libraries such as [cancancan](https://github.com/CanCanCommunity/cancancan) (cancan replacement) or [pundit](https://github.com/varvet/pundit) to do this. This ensures that all operations on a database object are authorized by the business logic of the application.
 
-More general information about this class of vulnerability is in the [OWASP Top 10 Page](https://wiki.owasp.org/index.php/Top_10_2010-A4-Insecure_Direct_Object_References).
+More general information about this class of vulnerability is in [OWASP Top 10:2025 A01 Broken Access Control](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/) and the [Insecure Direct Object Reference Prevention Cheat Sheet](Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.md).
 
 ### CSRF (Cross Site Request Forgery)
 
@@ -273,17 +259,13 @@ Example:
 
 `http://www.example.com/redirect?url=http://badhacker.com`
 
-The most basic, but restrictive protection is to use the `:only_path` option. Setting this to true will essentially strip out any host information. However, the `:only_path` option must be part of the first argument. If the first argument is not a hash table, then there is no way to pass in this option. In the absence of a custom helper or allow list, this is one approach that can work:
+For redirects that must stay within the application, use Rails' [`url_from`](https://api.rubyonrails.org/v8.1.3.1/classes/ActionController/Redirecting.html#method-i-url_from) to validate the destination against the request host and provide a fixed fallback:
 
-``` ruby
-begin
-  if path = URI.parse(params[:url]).path
-    redirect_to path
-  end
-rescue URI::InvalidURIError
-  redirect_to '/'
-end
+```ruby
+redirect_to url_from(params[:url]) || "/"
 ```
+
+Do not treat `URI.parse(value).path` as redirect validation: the path of `https://trusted.example//evil.example/path` is `//evil.example/path`, which is a protocol-relative external destination. Keep Rails' open-redirect protection enabled; if the application requires specific destinations, use an application-defined allowlist instead.
 
 If matching user input against a list of approved sites or TLDs against regular expression is a must, it makes sense to leverage a library such as `URI.parse()` to obtain the host and then take the host value and match it against regular expression patterns. Those regular expressions must, at a minimum, have anchors or there is a greater chance of an attacker bypassing the validation routine.
 
@@ -297,7 +279,7 @@ host = URI.parse("#{params[:url]}").host
 validation_routine(host) if host
 def validation_routine(host)
   # Validation routine where we use  \A and \z as anchors *not* ^ and $
-  # you could also check the host value against an allow list
+  # you could also check the host value against an allowlist
 end
 ```
 
@@ -357,7 +339,7 @@ When standard HTTP constructs are used:
 
 *The request is sent and the browser, upon receiving a response, inspects the response headers in order to determine if the response can and should be processed.*
 
-Allow list in Rails:
+Allowlist in Rails:
 
 **Gemfile:**
 
@@ -472,10 +454,7 @@ Another area of tooling is the security testing tool [Gauntlt](http://gauntlt.or
 
 Launched in May 2013 and very similar to brakeman scanner, the [dawnscanner](https://github.com/thesp0nge/dawnscanner) rubygem is a static analyzer for security issues that work with Rails, Sinatra and Padrino web applications. Version 1.6.6 has more than 235 ruby specific CVE security checks.
 
-## Related Articles and References
+## References
 
-- [The Official Rails Security Guide](https://guides.rubyonrails.org/security.html)
-- [OWASP Ruby on Rails Security Guide](https://owasp.org/www-pdf-archive/Rails_Security_2.pdf)
-- [The Ruby Security Reviewers Guide](http://code.google.com/p/ruby-security/wiki/Guide)
-- [The Ruby on Rails Security Mailing List](https://groups.google.com/forum/?fromgroups#!forum/rubyonrails-security)
-- [Rails Insecure Defaults](https://codeclimate.com/blog/rails-insecure-defaults/)
+- [Securing Rails Applications](https://guides.rubyonrails.org/security.html)
+- [Rails security policy](https://rubyonrails.org/security)

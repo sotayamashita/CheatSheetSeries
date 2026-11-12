@@ -5,28 +5,33 @@ on:
     branches:
     - master
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build offline website
-    runs-on: ubuntu-20.04 #ubuntu-latest ubuntu latest have some bug, we need to use older one 
+    runs-on: ubuntu-24.04
     env:
       CI: true
-      WORKFLOW_GOOGLE_ANALYTICS_KEY: ${{ secrets.GOOGLE_ANALYTICS_KEY }}
     steps:
     - name: Setup Action
-      uses: actions/checkout@v1
-    - name: Setup Node
-      uses: actions/setup-node@v2.1.5
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        node-version: 12.x
+        # The build only reads the tree; the deploy job checks out with its own token.
+        persist-credentials: false
+    - name: Setup Node
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: 20.x
     - name: Setup Python
-      uses: actions/setup-python@v2.2.1
+      uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
       with:
         python-version: '3.x'
-    - name: Install Python dependencies
-      run: make install-python-requirements
+    - name: Install system dependencies for lxml
+      run: sudo apt-get update && sudo apt-get install -y libxml2-dev libxslt1-dev
     - name: Run build script
-      run: cd scripts && bash Generate_Site_mkDocs.sh
+      run: make generate-site
     - name: List generated files
       run: ls -al generated/site/
     - name: Create bundle
@@ -34,61 +39,67 @@ jobs:
     - name: Test bundle
       run: zip -T bundle.zip
     - name: Upload bundle as artifact
-      uses: actions/upload-artifact@v2.2.2
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: Bundle
         path: bundle.zip
   deploy:
     name: Deploy offline website
     needs: build
+    # Hold the lock through checkout and push so deployments share a fresh base.
+    concurrency:
+      group: offline-website-gh-pages
+      cancel-in-progress: false
+      # A slower old build must not replace a newer pending deployment.
+      queue: max
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       CI: true
     steps:
     - name: Setup Action
-      uses: actions/checkout@v1
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        ref: gh-pages
     - name: Install dependencies
       run: sudo apt-get install -y unzip zip
-    - name: Switch to offline website (gh-pages) branch
-      run: git checkout gh-pages
     - name: Remove previous version website files
       run: |
         shopt -s extglob
         rm -rdfv !("CNAME"|"robots.txt"|"_config.yml")
     - name: Download new build from artifact
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
       with:
         name: Bundle
-    - name: Replace bundle with new build
-      run: |
-        mv Bundle/bundle.zip bundle.zip
-        rm -rf Bundle 1>/dev/null 2>&1
+    - name: Display structure of downloaded files
+      run: ls -R
+#    - name: Replace bundle with new build
+#      run: |
+#        mv Bundle.zip bundle.zip
+#        rm -rf Bundle 1>/dev/null 2>&1
     - name: Test new bundle
       run: zip -T bundle.zip
     - name: Extract new bundle
       run: |
         unzip bundle.zip
         mv site/* .
-        upd=`date +"%Y-%m-%d at %T"`; echo "Website last update: $upd." > README.md
+        upd=$(date +"%Y-%m-%d at %T"); echo "Website last update: $upd." > README.md
         rm -rf site
     - name: Commit changes to gh-pages
       run: |
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
         git add --all .
-        git commit -a -m "Deploy the generated website via GitHub Actions"
+        git commit -a -m "Deploy website from $GITHUB_SHA"
     - name: Publish the build to gh-pages
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: gh-pages
-    - name: Send update to Slack
-      uses: innocarpe/actions-slack@v1
-      with:
-        status: ${{ job.status }}
-        success_text: 'Offline website deployment: **success**'
-        failure_text: 'Offline website deployment: **fail**'
-        cancelled_text: 'Offline website deployment **cancelled**'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        # Builds can finish out of order, and old runs can be retried.
+        latest_master_sha=$(git ls-remote --exit-code origin refs/heads/master | cut -f1)
+        if [ "$GITHUB_SHA" != "$latest_master_sha" ]; then
+          echo "::notice::Skipping superseded build $GITHUB_SHA; master is $latest_master_sha."
+          exit 0
+        fi
+        git push origin HEAD:gh-pages

@@ -1,25 +1,22 @@
-# Multi-Factor Authentication Cheat Sheet
+# Multifactor Authentication Cheat Sheet
 
 ## Introduction
 
-Multi-Factor authentication (MFA), or Two-Factor Authentication (2FA) is when a user is required to present more than one type of evidence in order to authenticate on a system. There are four different types of evidence (or factors) that can be used, listed in the table below:
+Multifactor Authentication (MFA) requires evidence from at least two distinct authentication factors: something you know, something you have, and something you are. Location and other risk signals can inform authentication decisions, but do not substitute for an authentication factor, as explained in [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b/aal/).
 
 | Factor | Examples |
 |--------|----------|
-| Something You Know | Passwords, PINs and security questions. |
-| Something You Have | Hardware or software tokens, certificates, email, SMS and phone calls. |
-| Something You Are | Fingerprints, facial recognition, iris scans and handprint scans. |
-| Location | Source IP ranges and geolocation |
+| [Something You Know](#something-you-know) | [Passwords and PINs](#passwords-and-pins) |
+| [Something You Have](#something-you-have) | [OTP Tokens](#one-time-password-tokens), [U2F Tokens](#universal-second-factor), [Certificates](#certificates), [Smart Cards](#smart-cards), [SMS and Phone Calls (restricted)](#sms-messages-and-phone-calls) |
+| [Something You Are](#something-you-are) | [Fingerprints, Facial Recognition, Iris Scans](#biometrics), [Behavioral Biometrics](#something-you-do) |
 
-It should be emphasised that while requiring multiple examples of a single factor (such as needing both a password and a PIN) **does not constitute MFA**, although it may provide some security benefits over a simple password.
-
-Additionally, while the following sections discuss the disadvantage and weaknesses of various different types of MFA, in many cases these are only relevant against targeted attacks. **Any MFA is better than no MFA**.
+It should be noted that requiring multiple instances of the same authentication factor (such as needing both a password and a PIN) **does not constitute MFA** and offers minimal additional security. The factors used should be independent of each other and should not be able to be compromised by the same attack. While the following sections discuss the disadvantage and weaknesses of various different types of MFA, in many cases these are only relevant against targeted attacks. **Any MFA is better than no MFA**.
 
 ## Advantages
 
 The most common way that user accounts get compromised on applications is through weak, re-used or stolen passwords. Despite any technical security controls implemented on the application, users are liable to choose weak passwords, or to use the same password on different applications. As developers or system administrators, it should be assumed that users' passwords will be compromised at some point, and the system should be designed in order to defend against this.
 
-Multi-factor authentication (MFA) is by far the best defense against the majority of password-related attacks, including brute-force, [credential stuffing](Credential_Stuffing_Prevention_Cheat_Sheet.md) and password spraying, with analysis by Microsoft suggesting that it would have stopped [99.9% of account compromises](https://techcommunity.microsoft.com/t5/Azure-Active-Directory-Identity/Your-Pa-word-doesn-t-matter/ba-p/731984).
+MFA is by far the best defense against the majority of password-related attacks, including brute-force, [credential stuffing](Credential_Stuffing_Prevention_Cheat_Sheet.md) and password spraying, with analysis by Microsoft suggesting that it would have stopped [99.9% of account compromises](https://techcommunity.microsoft.com/t5/Azure-Active-Directory-Identity/Your-Pa-word-doesn-t-matter/ba-p/731984).
 
 ## Disadvantages
 
@@ -38,13 +35,19 @@ Exactly when and how MFA is implemented in an application will vary on a number 
 
 However, the following recommendations are generally appropriate for most applications, and provide an initial starting point to consider.
 
-- Provide the option for users to enable MFA on their accounts using [TOTP](#software-totp-tokens).
+- Require some form of MFA for all users.
+- Provide the option for users to enable MFA on their accounts using [TOTP](#software-otp-tokens).
 - Require MFA for administrative or other high privileged users.
-- Consider allowing corporate IP ranges so that MFA is not required from them.
-- Allow the user to remember the use of MFA in their browser, so they are not prompted every time they login.
-- Implement a secure process to allow users to reset their MFA.
+- Implement a secure procedure to allow users to reset their MFA.
+- Consider [MFA as a service](#consider-using-a-third-party-service).
 
 ## Implementing MFA
+
+MFA is a critical security control, and is recommended for all applications. The following sections provide guidance on how to implement MFA, and the considerations that should be taken into account.
+
+### Regulatory and Compliance Requirements
+
+Many industries and countries have regulations that require the use of MFA. This is particularly common in the finance and healthcare sectors, and is often required in order to comply with the General Data Protection Regulation (GDPR) in the European Union. It is important to consider these requirements when implementing MFA.
 
 ### When to Require MFA
 
@@ -57,18 +60,55 @@ The most important place to require MFA on an application is when the user logs 
 
 If the application provides multiple ways for a user to authenticate these should all require MFA, or have other protections implemented. A common area that is missed is if the application provides a separate API that can be used to login, or has an associated mobile application.
 
-### Improving Usability
+### One-Time Password (OTP) Handling and Storage
 
-Having to frequently login with MFA creates an additional burden for users, and may cause them to disable MFA on the application. A number of mechanisms can be used to try and reduce the level of annoyance that MFA causes. However, these types of measures do decrease the security provided by MFA, so need to be risk assessed to find a reasonable balance of security and usability for the application.
+OTPs are authentication secrets and should be handled with password-like hygiene. While their security traits differ from long-lived passwords, improper handling can still lead to user account compromise.
 
-- Remembering the user's browser so they don't need to use MFA every time.
-    - This can either be permanent, or for a period of a few days.
-    - This needs to be done with more than just a cookie, which could be stolen by an attacker.
-        - For example, a cookie matched to the previous IP address the cookie was issued for.
-- Allow corporate IP ranges (or, more strictly, using location as a second factor).
-    - This doesn't protect against malicious insiders, or a user's workstation being compromised.
-- Only requiring MFA for sensitive actions, not for the initial login.
-    - This will depend heavily on the functionality in the application.
+At a minimum, OTP implementations SHOULD:
+
+- Enforce a short time-to-live (TTL)
+- Ensure OTPs are single use
+- Apply strict attempt limits
+- Invalidate the OTP on successful verification
+
+OTP implementations SHOULD NOT:
+
+- Log OTP values
+- Store OTPs in long-term plaintext form
+
+To further reduce risk and limit exposure, it is RECOMMENDED to:
+
+- Generate OTPs using a cryptographically secure random number generator
+- Consider 8-digit or longer codes where usability allows
+- On "resend", generate a new OTP and overwrite the old record
+
+#### Hashing OTPs
+
+Hashing OTPs is still recommended, but for different reasons than password hashing. OTPs typically have a very small keyspace (for example, ~1 million possibilities for a 6-digit code), which means a database attacker can brute-force any OTP hash quickly.
+
+As a result, hashing OTPs does not provide strong offline attack resistance in the way password hashing does.
+
+However, hashing remains useful to:
+
+- Prevent accidental disclosure via logs, metrics, or debugging tools
+- Reduce blast radius if the database is briefly exposed during the OTP’s validity window
+- Enforce good secret-handling discipline and avoid plaintext storage by default
+
+The goal is short-term exposure protection, not long-term cryptographic secrecy.
+
+### Improving User Experience
+
+#### Risk Based Authentication
+
+Having to frequently login with MFA creates an additional burden for users, and may cause them to disable MFA on the application. Risk based authentication can be used to reduce the frequency of MFA prompts, by only requiring MFA when the user is performing an action that is considered to be high risk. Some examples of this include:
+
+- Requiring MFA when the user logs in from a new device or location.
+- Requiring MFA when the user logs in from a location that is considered to be high risk.
+- Using corporate IP ranges or [geolocation](#geolocation) as risk signals when deciding whether to require additional authentication.
+
+#### Passkeys
+
+Passkeys can provide phishing-resistant MFA by combining possession of the credential private key with local [PIN](#passwords-and-pins) or [biometric](#biometrics) verification. When using passkeys as MFA, require user verification and [validate the returned user-verification flag on the server](https://www.w3.org/TR/webauthn-3/#sctn-verifying-assertion); a touch confirming user presence alone is not a second factor. The credential key pair is created during [registration](https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential); authentication uses the existing private key to sign a challenge. For registration, verification, and recovery guidance, see the [Passkey Security Cheat Sheet](Passkey_Security_Cheat_Sheet.md).
 
 ### Failed Login Attempts
 
@@ -79,8 +119,7 @@ When a user enters their password, but fails to authenticate using a second fact
 
 There are a number of steps that should be taken when this occurs:
 
-- Prompt the user to try another form of MFA
-    - For example, an SMS code rather than using their hardware OTP token.
+- Prompt the user to try another form of MFA.
 - Allow the user to attempt to [reset their MFA](#resetting-mfa).
 - Notify the user of the failed login attempt, and encourage them to change their password if they don't recognize it.
     - The notification should include the time, browser and geographic location of the login attempt.
@@ -88,7 +127,7 @@ There are a number of steps that should be taken when this occurs:
 
 ### Resetting MFA
 
-One of the biggest challenges with implementing MFA is handling users who forget or lose their second factors. There are many ways this could happen, such as:
+One of the biggest challenges with implementing MFA is handling users who forget or lose their additional factors. There are many ways this could happen, such as:
 
 - Re-installing a workstation without backing up digital certificates.
 - Wiping or losing a phone without backing up OTP codes.
@@ -102,21 +141,35 @@ Some suggestions of possible methods include:
 
 - Providing the user with a number of single-use recovery codes when they first setup MFA.
 - Requiring the user to setup multiple types of MFA (such as a digital certificate, OTP core and phone number for SMS), so that they are unlikely to lose access to all of them at once.
-- Posting a one-use recovery code (or new hardware token) to the user.
+- Mailing a one-use recovery code (or new hardware token) to the user's registered address.
 - Requiring the user contact the support team and having a rigorous process in place to verify their identity.
 - Requiring another trusted user to vouch for them.
 
+### Changing MFA Factors
+
+Users may need to update their authentication factors, such as changing a phone number, migrating to a new authenticator app, or replacing a lost hardware token. Because attackers can exploit this process to take over accounts, it must be strictly secured.
+
+Best practices include:
+
+- Require reauthentication with an existing enrolled factor before allowing changes.
+- Do not rely solely on the active session, as it may be hijacked.
+- Treat factor replacement as a high-risk action and apply risk-based checks (e.g., new device, unusual location).
+- Notify the user through out-of-band channels (such as email or push notification) whenever an MFA factor is changed.
+- Consider applying delays or step-up verification for high-value accounts.
+
+This ensures that even if a session is compromised, attackers cannot silently replace the user’s MFA factors and lock the legitimate user out.
+
+### Consider Using a Third Party Service
+
+There are a number of third party services that provide MFA as a service. These can be a good option for applications that don't have the resources to implement MFA themselves, or for applications that require a high level of assurance in their MFA. However, it is important to consider the security of the third party service, and the implications of using it. For example, if the third party service is compromised, it could allow an attacker to bypass MFA on all of the applications that use it.
+
 ## Something You Know
 
-The most common type of authentication is based on something the users knows - typically a password. The biggest advantage of this factor is that it has very low requirements for both the developers and the end user, as it does not require any special hardware, or integration with other services.
+Knowledge-based, the most common type of authentication is based on something the users knows - typically a password. The biggest advantage of this factor is that it has very low requirements for both the developers and the end user, as it does not require any special hardware, or integration with other services.
 
 ### Passwords and PINs
 
-Passwords and PINs are the most common form of authentication due to the simplicity of implementing them. The [Authentication Cheat Sheet](Authentication_Cheat_Sheet.md#implement-proper-password-strength-controls) has guidance on how to implement a strong password policy, and the [Password Storage Cheat Sheet](Password_Storage_Cheat_Sheet.md) has guidance on how to securely store passwords.
-
-Most multi-factor authentication systems make use of a password, as well as at least one other factor.
-
-It should be noted that PINs, "secret words" and other similar type of information are all effectively the same as passwords. Using two different types of passwords **does not constitute MFA**.
+Passwords and PINs are the most common form of authentication due to the simplicity of implementing them. The [Authentication Cheat Sheet](Authentication_Cheat_Sheet.md#implement-proper-password-strength-controls) has guidance on how to implement a strong password policy, and the [Password Storage Cheat Sheet](Password_Storage_Cheat_Sheet.md) has guidance on how to securely store passwords. Most multifactor authentication systems make use of a password, as well as at least one other factor.
 
 #### Pros
 
@@ -132,14 +185,15 @@ It should be noted that PINs, "secret words" and other similar type of informati
 
 ### Security Questions
 
-Security questions require the user to choose (or create) a number of questions that only they will know the answer to. These are effectively the same as passwords, although they are generally considered weaker. The [Choosing and Using Security Questions Cheat Sheet](Choosing_and_Using_Security_Questions_Cheat_Sheet.md) contains further guidance on how to implement these securely.
+**Security questions are no longer recognized as an acceptable authentication factor** per [NIST SP 800-63](https://pages.nist.gov/800-63-3/sp800-63b.html). Account recovery is just an alternate way to authenticate so it should be no weaker than regular authentication.
 
 #### Pros
 
-- Simple and well understood.
+- None that are not also present in passwords.
 
 #### Cons
 
+- No longer recognized as an acceptable authentication factor.
 - Questions often have easily guessable answers.
 - Answers to questions can often be obtained from social media or other sources.
 - Questions must be carefully chosen so that users will remember answers years later.
@@ -147,22 +201,22 @@ Security questions require the user to choose (or create) a number of questions 
 
 ## Something You Have
 
-The second factor is something that the user possesses. This could be a physical item (such as a hardware token), a digital item (such as a certificate or private key), or based on the ownership of a mobile phone, phone number, or email address (such as SMS or a software token installed on the phone, or an email with a single-use verification code).
+Possession-based authentication is based on the user having a physical or digital item that is required to authenticate. This is the most common form of MFA, and is often used in conjunction with passwords. The most common types of possession-based authentication are hardware and software tokens, and digital certificates. If properly implemented then this can be significantly more difficult for a remote attacker to compromise; however it also creates an additional administrative burden on the user, as they must keep the authentication factor with them whenever they wish to use it.
 
-If properly implemented then this can be significantly more difficult for a remote attacker to compromise; however it also creates an additional administrative burden on the user, as they must keep the authentication factor with them whenever they wish to use it.
+### One-Time Password Tokens
 
-The requirement to have a second factor can also limit certain types of users' ability to access a service. For example, if a user does not have access to a mobile phone, many types of MFA will not be available for them.
+One-Time Password (OTP) tokens are a form of possession-based authentication, where the user is required to submit a constantly changing numeric code in order to authenticate. The most common of which is Time-based One-Time Password (TOTP) tokens, which can be both hardware and software based.
 
-### Hardware OTP Tokens
+#### Hardware OTP Tokens
 
-Physical hardware OTP tokens can be used which generate constantly changing numeric codes, which must be submitted when authentication on the application. Most well-known of these is the [RSA SecureID](https://en.wikipedia.org/wiki/RSA_SecurID), which generates a six digit number that changes every 60 seconds.
+Hardware OTP Tokens generate a constantly changing numeric codes, which must be submitted when authenticating. Most well-known of these is the [RSA SecureID](https://en.wikipedia.org/wiki/RSA_SecurID), which generates a six digit number that changes every 60 seconds.
 
-#### Pros
+##### Pros
 
 - As the tokens are separate physical devices, they are almost impossible for an attacker to compromise remotely.
 - Tokens can be used without requiring the user to have a mobile phone or other device.
 
-#### Cons
+##### Cons
 
 - Deploying physical tokens to users is expensive and complicated.
 - If a user loses their token it could take a significant amount of time to purchase and ship them a new one.
@@ -170,20 +224,20 @@ Physical hardware OTP tokens can be used which generate constantly changing nume
 - Stolen tokens can be used without a PIN or device unlock code.
 - Susceptible to phishing (although short-lived).
 
-### Software TOTP Tokens
+#### Software OTP Tokens
 
-A cheaper and easier alternative to hardware tokens is using software to generate Time-based One Time Password (TOTP) codes. This would typically involve the user installing a TOTP application on their mobile phone, and then scanning a QR code provided by the web application which provides the initial seed. The authenticator app then generates a six digit number every 60 seconds, in much the same way as a hardware token.
+A cheaper and easier alternative to hardware tokens is using software to generate Time-based One-Time Password (TOTP) codes. This would typically involve the user installing a TOTP application on their mobile phone, and then scanning a QR code provided by the web application which provides the initial seed. The authenticator app generates a numeric code using a configured time step; [RFC 6238 recommends a default of 30 seconds](https://www.rfc-editor.org/rfc/rfc6238.html#section-5.2). The app and server must use the same time-step value.
 
-Most websites use standardized TOTP tokens, allowing the user to install any authenticator app that supports TOTP. However, a small number of applications use their own variants of this (such as Symantec), which requires the users to install a specific app in order to use the service. This should be avoided in favour of a standards-based approach.
+Most websites use standardized TOTP tokens, allowing the user to install any authenticator app that supports TOTP. However, a small number of applications use their own variants of this (such as Symantec), which requires the users to install a specific app in order to use the service. This should be avoided in favor of a standards-based approach.
 
-#### Pros
+##### Pros
 
 - The absence of physical tokens greatly reduces the cost and administrative overhead of implementing the system.
 - When users lose access to their TOTP app, a new one can be configured without needing to ship a physical token to them.
 - TOTP is widely used, and many users will already have at least one TOTP app installed.
-- As long as the user has a screen lock on their phone, an attacker will be unable to use the code if they steal the phone.
+- A screen lock reduces theft risk but does not guarantee protection if the phone is stolen while unlocked. Enable authenticator-app access protection where available; for example, [Google Authenticator’s Privacy Screen](https://support.google.com/accounts/answer/1066447?hl=en-rd) requires device verification before app use.
 
-#### Cons
+##### Cons
 
 - TOTP apps are usually installed on mobile devices, which are vulnerable to compromise.
 - The TOTP app may be installed on the same mobile device (or workstation) that is used to authenticate.
@@ -192,15 +246,19 @@ Most websites use standardized TOTP tokens, allowing the user to install any aut
 - If the user's mobile device is lost, stolen or out of battery, they will be unable to authenticate.
 - Susceptible to phishing (although short-lived).
 
-### Hardware U2F Tokens
+### Universal Second Factor
 
-Hardware U2F tokens communicate with the users workstation over USB or NFC, and implement challenge-response based authentication, rather than requiring the user to manually enter the code. This would typically be done by the user pressing a button on the token, or tapping it against their NFC reader.
+Hardware U2F tokens
+
+Universal Second Factor (U2F) is a standard for USB/NFC hardware tokens that  implement challenge-response based authentication, rather than requiring the user to manually enter the code. This would typically be done by the user pressing a button on the token, or tapping it against their NFC reader. The most common U2F token is the [YubiKey](https://www.yubico.com/products/yubikey-hardware/).
 
 #### Pros
 
-- Longer codes can be used, which may provide a higher level of security.
+- U2F tokens are resistant to phishing since the private key never leaves the token.
 - Users can simply press a button rather than typing in a code.
-- Resistant to phishing.
+- As the tokens are separate physical devices, they are almost impossible for an attacker to compromise remotely.
+- U2F is natively supported by a number of major web browsers.
+- U2F tokens can be used without requiring the user to have a mobile phone or other device.
 
 #### Cons
 
@@ -210,9 +268,7 @@ Hardware U2F tokens communicate with the users workstation over USB or NFC, and 
 
 ### Certificates
 
-Digital certificates are files that are stored on the user's device which are automatically provided alongside the user's password when authenticating. The most common type is X.509 certificates (discussed in the [Transport Layer Protection Cheat Sheet](Transport_Layer_Protection_Cheat_Sheet.md#consider-the-use-of-client-side-certificates)), more commonly known as client certificates.
-
-Certificates are supported by all major web browsers, and once installed require no further interaction from the user. The certificates should be linked to an individual's user account in order to prevent users from trying to authenticate against other accounts.
+Digital certificates are files that are stored on the user's device which are automatically provided alongside the user's password when authenticating. The most common type is X.509 certificates more commonly known as [client certificates](Transport_Layer_Security_Cheat_Sheet.md#client-certificates-and-mutual-tls). Certificates are supported by all major web browsers, and once installed require no further interaction from the user. The certificates should be linked to an individual's user account in order to prevent users from trying to authenticate against other accounts.
 
 #### Pros
 
@@ -223,12 +279,12 @@ Certificates are supported by all major web browsers, and once installed require
 
 #### Cons
 
-- Using digital certificates requires backend PKI system.
+- Using digital certificates requires a backend Private Key Infrastructure (PKI).
 - Installing certificates can be difficult for users, particularly in a highly restricted environment.
 - Enterprise proxy servers which perform SSL decryption will prevent the use of certificates.
 - The certificates are stored on the user's workstation, and as such can be stolen if their system is compromised.
 
-### Smartcards
+### Smart Cards
 
 Smartcards are credit-card size cards with a chip containing a digital certificate for the user, which is unlocked with a PIN. They are commonly used for operating system authentication, but are rarely used in web applications.
 
@@ -242,12 +298,15 @@ Smartcards are credit-card size cards with a chip containing a digital certifica
 
 - Managing and distributing smartcards has the same costs and overheads as hardware tokens.
 - Smartcards are not natively supported by modern browsers, so require third party software.
-- Although most business-class laptops have smartcard readers built in, home systems often do not.
-- The use of smartcards requires functioning backend PKI systems.
+- Although most business-class laptops have smartcard readers built-in, home systems often do not.
+- The use of smartcards requires backend PKIs.
 
 ### SMS Messages and Phone Calls
 
-SMS messages or phone calls can be used to provide users with a single-use code that they must submit as a second factor.
+> [!WARNING]
+> NIST SP 800-63B-4 designates SMS and PSTN-delivered codes as a *restricted* authenticator because of SS7 interception, SIM-swap, and number-porting attacks. Do not use SMS for high-value or PII-handling applications. Where it is the only available factor, document the risk acceptance, enforce per-account rate limits, monitor for SIM-swap signals, and plan migration to TOTP, push notifications, or WebAuthn/FIDO2.
+
+SMS messages or phone calls can be used to provide users with a single-use code that they must submit as an additional factor. Due to the risks posed by these methods, they should not be used to protect applications that hold Personally Identifiable Information (PII) or where there is financial risk. e.g. healthcare and banking. [NIST SP 800-63B](https://pages.nist.gov/800-63-3/sp800-63b.html) classifies these as restricted authenticators and discourages their use for applications containing PII.
 
 #### Pros
 
@@ -257,11 +316,13 @@ SMS messages or phone calls can be used to provide users with a single-use code 
 #### Cons
 
 - Requires the user to have a mobile device or landline.
-- Require user to have signal to receive the call or message.
-- Calls and SMS messages may cost money to send (need to protect against attackers requesting a large number of messages to exhaust funds.
-- A number of attacks against SMS or mobile numbers have been demonstrated and exploited in the past.
+- Require user to have signal or internet access to receive the call or message.
+- Calls and SMS messages may cost money to send need to protect against attackers requesting a large number of messages to exhaust funds.
+- Susceptible to SIM swapping attacks.
 - SMS messages may be received on the same device the user is authenticating from.
 - Susceptible to phishing.
+- SMS may be previewed when the device is locked.
+- SMS may be read by malicious or insecure applications.
 
 ### Email
 
@@ -282,7 +343,7 @@ Email verification requires that the user enters a code or clicks a link sent to
 
 ## Something You Are
 
-The final factor in the traditional view of MFA is something you are - which is one of the physical attributes of the users (often called biometrics). Biometrics are rarely used in web applications due to the requirement for users to have specific hardware.
+Inherence-based authentication is based on the physical attributes of the user. This is less common for web applications as it requires the user to have specific hardware, and is often considered to be the most invasive in terms of privacy. However, it is commonly used for operating system authentication, and is also used in some mobile applications.
 
 ### Biometrics
 
@@ -291,29 +352,28 @@ The are a number of common types of biometrics that are used, including:
 - Fingerprint scans
 - Facial recognition
 - Iris scans
-- Handprint scans
+- Voice recognition
 
 #### Pros
 
 - Well-implemented biometrics are hard to spoof, and require a targeted attack.
+- Fast and convenient for users.
 
 #### Cons
 
-- Require manual enrolment of the user's physical attributes.
+- Manual enrollment is required for the user.
 - Custom (sometimes expensive) hardware is often required to read biometrics.
-- Modern browsers do not have native support, so custom client-side software is required.
 - Privacy concerns: Sensitive physical information must be stored about users.
 - If compromised, biometric data can be difficult to change.
+- Hardware may be vulnerable to additional attack vectors.
 
-## Location
+## Somewhere You Are
 
-The use of location as a fourth factor for MFA is not fully accepted;  however, it is increasingly be used for authentication. It is sometimes argued that location is used when deciding whether or not to require MFA (as discussed [above](#when-to-require-mfa)) however this is effectively the same as considering it to be a factor in its own right. Two prominent examples of this are the [Conditional Access Policies](https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/overview) available in Microsoft Azure, and the [Network Unlock](https://docs.microsoft.com/en-us/windows/security/information-protection/bitlocker/bitlocker-how-to-enable-network-unlock) functionality in BitLocker.
+Location can inform access restrictions and risk-based authentication decisions. It is not an independent authentication factor: a password combined with a trusted IP address or location does not constitute MFA. [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b/aal/) explicitly distinguishes these risk signals from authentication factors.
 
-When talking about location, access to the application that the user is authenticating against is not usually considered (as this would always be the case, and as such is relatively meaningless).
+### Source IP Address
 
-### Source IP Ranges
-
-The source IP address the user is connecting from can be used as a factor, typically in an allow-list based approach. This could either be based on a static list (such as corporate office ranges) or a dynamic list (such as previous IP addresses the user has authenticated from).
+The source IP address the user is connecting from can be used as a risk signal or access restriction, typically in an allow-list based approach. This could either be based on a static list (such as corporate office ranges) or a dynamic list (such as previous IP addresses the user has authenticated from).
 
 #### Pros
 
@@ -332,10 +392,165 @@ Rather than using the exact IP address of the user, the geographic location that
 
 #### Pros
 
-- Very easy for users
+- Very easy for users.
 
 #### Cons
 
 - Doesn't provide any protection if the user's system is compromised.
 - Doesn't provide any protection against rogue insiders.
 - Easy for an attacker to bypass by obtaining IP addresses in the trusted country or location.
+- Privacy features such as Apple's [iCloud Private Relay](https://support.apple.com/en-us/102602) and VPNs can make this less accurate.
+
+### Geofencing
+
+Geofencing is a more precise version of geolocation, which allows the user to define a specific area in which they are allowed to authenticate. This is often used in mobile applications, where the user's location can be determined with a high degree of accuracy using geopositioning hardware like GPS.
+
+#### Pros
+
+- Very easy for users.
+- Provides a high level of protection against remote attackers.
+
+#### Cons
+
+- Doesn't provide any protection if the user's system is compromised.
+- Doesn't provide any protection against rogue insiders.
+- Doesn't provide any protection against attackers who are physically close to the trusted location.
+
+## Something You Do
+
+Behavioral biometrics, such as keystroke patterns or gait, are a form of "something you are," not a separate authentication factor. Under [NIST's biometric requirements](https://pages.nist.gov/800-63-4/sp800-63b.html#biometric_use), biometric comparison must be combined with an authenticated physical authenticator. General activity signals, such as login times or navigation patterns, can inform risk decisions but do not by themselves constitute MFA.
+
+### Behavioral Profiling
+
+Behavioral profiling is based on the way the user interacts with the application, such as the time of day they log in, the devices they use, and the way they navigate the application. This is rapidly becoming more common in web applications when combined with [Risk Based Authentication](#risk-based-authentication) and [User and Entity Behavior Analytics](https://learn.microsoft.com/en-us/azure/sentinel/identify-threats-with-entity-behavior-analytics) (UEBA) systems.
+
+#### Pros
+
+- Doesn't require user interaction.
+- Can be used to continuously authenticate the user.
+- Combines well with other factors to increase the level of assurance in the user's identity.
+
+#### Cons
+
+- Early implementations of behavioral profiling were often inaccurate and caused a significant number of false positives.
+- Requires large amounts of data and processing power to analyze the user's behavior.
+- May be difficult to implement in environments where the user's behavior is likely to change frequently.
+
+### Keystroke & Mouse Dynamics
+
+Keystroke and mouse dynamics are based on the way the user types and moves their mouse. For example, the time between key presses, the time between key presses and releases, and the speed and acceleration of the mouse. Largely theoretical, and not widely used in practice.
+
+#### Pros
+
+- Can be used without requiring any additional hardware.
+- Can be used without requiring any additional interaction from the user.
+- Can be used to continuously authenticate the user.
+- Can be used to detect when the user is not the one using the system.
+- Can be used to detect when the user is under duress.
+- Can be used to detect when the user is not in a fit state to use the system.
+
+#### Cons
+
+- Unlikely to be accurate enough to be used as a standalone factor.
+- May be spoofed by AI or other advanced attacks.
+
+### Gait Analysis
+
+Gait analysis is based on the way the user walks using cameras and sensors. They are often used in physical security systems, but are not widely used in web applications. Mobile device applications may be able to use the accelerometer to detect the user's gait and use this as an additional factor, however this is still largely theoretical.
+
+#### Pros
+
+- Very difficult to spoof.
+- May be used without requiring any additional interaction from the user.
+
+#### Cons
+
+- Requires specific hardware to implement.
+- Use outside of physical security systems is not widely tested.
+
+## Adaptive or Risk-Based Authentication
+
+Adaptive (or Risk-Based) Authentication adjusts authentication requirements dynamically based on the context of the login attempt. This technique helps improve user experience while strengthening security by applying additional verification steps only when risk is elevated.
+
+Common signals used to determine risk include:
+
+- Geolocation and IP reputation
+- Device fingerprinting
+- Time of access (e.g., 3 AM login)
+- Behavioral biometrics (e.g., typing speed or mouse movements)
+- Known compromised credentials
+
+If risk is detected, the system may:
+
+- Prompt for an additional factor (e.g., OTP)
+- Enforce re-authentication
+- Deny access and trigger alerting or account protection flows
+
+For more details on when to trigger reauthentication after high-risk events—such as account recovery or suspicious activity—see the [Reauthentication After Risk Events](Authentication_Cheat_Sheet.md#re-authentication-after-risk-events) section in the Authentication Cheat Sheet
+
+This method is widely used in modern authentication systems to balance usability and security. However, developers must ensure that risk signals cannot be spoofed and that fallback mechanisms are not weaker than the primary MFA methods.
+
+**Example Use Case**: A user logs in from a trusted device in a usual location — no additional prompt is needed. But if they log in from a new country using a Tor exit node, the system requires SMS verification or triggers an account lock until further verification.
+
+## MFA Attack Patterns and Mitigations
+
+Attackers increasingly target weaknesses in MFA deployments and authentication workflows rather than attempting to defeat MFA itself. The following sections describe common attack patterns and recommended mitigations based on guidance from [NIST SP 800-63B](https://pages.nist.gov/800-63-4/sp800-63b.html), [CISA's Implementing Phishing-Resistant MFA](https://www.cisa.gov/sites/default/files/publications/fact-sheet-implementing-phishing-resistant-mfa-508c.pdf), the [FIDO Alliance Specifications](https://fidoalliance.org/specifications/), and [OAuth 2.0 Security Best Current Practice (RFC 9700)](https://datatracker.ietf.org/doc/rfc9700/).
+
+### General Mitigation: Primary Phishing-Resistant Control
+
+Prefer phishing-resistant authenticators (FIDO2/WebAuthn), which bind authentication to the legitimate origin and resist credential theft, MFA fatigue, and reverse-proxy phishing. See the Passkeys section for additional guidance.
+
+### MFA Fatigue (Push Notification Bombing)
+
+Attackers repeatedly send MFA push notifications, often combined with social engineering, hoping the user eventually approves one.
+
+#### Mitigations
+
+- Require challenge-response push authentication (for example, number matching) to prevent blind approval of authentication requests.
+- Rate-limit or cap push notifications to prevent repeated prompt abuse.
+- Monitor for anomalous authentication activity, such as multiple push prompts in a short period or new-device token reuse.
+
+### Real-Time Phishing Using Reverse Proxies
+
+Attackers use reverse-proxy phishing frameworks (such as Evilginx, Modlishka, and Muraena) to present convincing copies of legitimate login pages. These frameworks relay authentication traffic between the user and the legitimate service, allowing attackers to capture credentials and session tokens in real-time.
+
+#### Mitigations
+
+- Monitor for anomalous authentication and session activity that may indicate credential or session compromise (for example, impossible travel, new ASN, or sudden MFA method changes).
+- Use phishing-resistant authenticators (see Passkeys section), which bind authentication to the legitimate origin and are resistant to real-time phishing attacks.
+
+### SIM Swap and Phone Number Takeover
+
+Attackers convince a telecommunications provider to transfer a victim's phone number, allowing interception of SMS or voice-based one-time passwords.
+
+#### Mitigations
+
+- Encourage carrier account PINs or port-out protection where available to reduce unauthorized number transfers.
+- Monitor for unexpected phone-number changes or SIM replacement events.
+- Prefer phishing-resistant authenticators or TOTP instead of SMS/voice OTP.
+- See also: [SMS Messages and Phone Calls](#sms-messages-and-phone-calls).
+  
+### Device Binding Bypass
+
+Attackers attempt to bypass device-based authentication by extracting exportable cryptographic keys or replaying cloned device attributes when authenticators are not hardware-protected.
+
+#### Mitigations
+
+- Prefer hardware-backed, non-exportable cryptographic keys (for example, platform authenticators backed by TPM, Secure Enclave, or Android StrongBox).
+- Validate authenticator attestation where required by organizational policy.
+
+### MFA Downgrade Attacks
+
+Attackers attempt to force authentication through legacy protocols or authentication flows that do not enforce the same MFA requirements as modern authentication methods. Weak fallback mechanisms or legacy authentication endpoints can allow users to authenticate with lower-assurance factors than intended.
+
+#### Mitigations
+
+- Disable legacy authentication protocols and endpoints that cannot enforce MFA consistently.
+- Prevent fallback from phishing-resistant authenticators to lower-assurance authentication methods unless required by a documented security policy.
+- Follow OAuth 2.0 Security Best Current Practice (RFC 9700) to prevent OAuth protocol-level downgrade and mix-up attacks.
+
+## References
+
+- [NIST SP 800-63B-4: Authentication and Authenticator Management](https://pages.nist.gov/800-63-4/sp800-63b.html)
+- [W3C Web Authentication Level 3](https://www.w3.org/TR/webauthn-3/)
+- [RFC 6238: Time-Based One-Time Password Algorithm](https://datatracker.ietf.org/doc/html/rfc6238)

@@ -2,12 +2,14 @@
 
 ## Introduction
 
-This cheat sheet will discuss common and necessary security patterns to follow when creating and reviewing cloud architectures. Each section will cover a specific security guideline or cloud design decision to consider. This sheet is written for a medium to large scale enterprise system, so additional overhead elements will be discussed, which may be unecessary for smaller organizations.
+This cheat sheet will discuss common and necessary security patterns to follow when creating and reviewing cloud architectures. Each section will cover a specific security guideline or cloud design decision to consider. This sheet is written for a medium to large scale enterprise system, so additional overhead elements will be discussed, which may be unnecessary for smaller organizations.
 
 ## Risk Analysis, Threat Modeling, and Attack Surface Assessments
 
+See the [Secure Product Design Cheat Sheet](Secure_Product_Design_Cheat_Sheet.md) for application design guidance.
+
 With any application architecture, understanding the risks and threats is extremely important for proper security. No one can spend their entire budget or bandwidth focused on security, so properly allocating security resources is necessary.
-Therefore, enterprises must perform risk assessments, threat modeling activites, and attack surface assessments to identify the following:
+Therefore, enterprises must perform risk assessments, threat modeling activities, and attack surface assessments to identify the following:
 
 - What threats an application might face
 - The likelihood of those threats actualizing as attacks
@@ -32,12 +34,12 @@ Object storage usually has the following options for accessing data:
 
 #### IAM Access
 
-This method involves indirect access on tooling such as a managed or self-managed service running on ephemeral or persistent infrastructure. This infrastructure contains a persistent control plane IAM credential, which interacts with the object storage on the user's behalf. The method is best used when the application has other user interfaces or data systems available, when it is important to hide as much of the storage system as possible, or when the information shouldn't/won't be seen by an end user (metadata). It can be used in combination with web authentication and logging to better track and control access to resources. The key security concern for this approach is relying on developed code or policies which could contain weaknesses.
+This method involves indirect access on tooling such as a managed or self-managed service running on ephemeral or persistent infrastructure. Authenticate the service with a workload identity or federated role that obtains short-lived credentials, instead of embedding a persistent access key. For example, [AWS recommends temporary credentials from IAM roles or federation](https://docs.aws.amazon.com/IAM/latest/UserGuide/security-creds.html) for application access. Limit the service's permissions to the required storage operations and resources. The method is best used when the application has other user interfaces or data systems available, when it is important to hide as much of the storage system as possible, or when the information shouldn't/won't be seen by an end user (metadata). It can be used in combination with web authentication and logging to better track and control access to resources. The key security concern for this approach is relying on developed code or policies which could contain weaknesses.
 
 |                 Pros                 |                       Cons                         |
 |:------------------------------------:|:--------------------------------------------------:|
 |       No direct access to data       |          Potential use of broad IAM policy         |
-| No user visibility to object storage | Credential loss gives access to control plane APIs |
+| No user visibility to object storage | Stolen credentials expose permitted resources |
 |   Identifiable and loggable access   |           Credentials could be hardcoded           |
 
 This approach is acceptable for sensitive user data, but must follow rigorous coding and cloud best practices, in order to properly secure data.
@@ -61,7 +63,7 @@ URL Signing for object storage involves using some method or either statically o
 | Efficient access to many resources  |     Anyone can access/No privacy     |
 |       Simple public file share      |  Unauthenticated access to objects   |
 |                                     |  Visibility into full file system    |
-|                                     |     Accidently leak stored info      |
+|                                     |     Accidentally leak stored info      |
 
 ### VPCs and Subnets
 
@@ -74,7 +76,7 @@ VPC's are used to create network boundaries within an application, where-in comp
 - Separate entire applications within the same cloud account.
 - Separate large components of application into distinct VPCs with isolated networks.
 - Create separations between duplicate applications used for different customers or data sets.
-  
+
 #### Public Subnets
 
 Public subnets house components which will have an internet facing presence. The subnet will contain network routing elements to allow components within the subnet to connect directly to the internet. Some use cases include:
@@ -107,7 +109,7 @@ This architecture prevents less hardened backend components or higher risk servi
 
 ## Trust Boundaries
 
-Trust boundaries are connections between components within a system where a trust decision has to be made by the components. Another way to phrase it, this boundary is a point where two components with potentially different trust levels meet. These boundaries can range in scale, from the degrees of trust given to users interacting with an application, to trusting or verifying specific claims between code functions or components within a cloud architecture. Generally speaking however, trusting each component to perform its function correctly and securely, suffices. Therefore, trust boundaries likely will occur in the connections between cloud components, and between the application and third party elements, like end users and other vendors.  
+Trust boundaries are connections between components within a system where a trust decision has to be made by the components. Another way to phrase it, this boundary is a point where two components with potentially different trust levels meet. These boundaries can range in scale, from the degrees of trust given to users interacting with an application, to trusting or verifying specific claims between code functions or components within a cloud architecture. Do not grant access merely because a component is internal or owned by the same organization. [NIST SP 800-207](https://csrc.nist.gov/pubs/sp/800/207/final) requires explicit authentication and authorization for protected resources rather than trust based solely on network location or ownership. Identify these checks between cloud components as well as at connections to end users and other vendors.
 
 As an example, consider the architecture below. An API gateway connects to a compute instance (ephemeral or persistent), which then accesses a persistent storage resource. Separately, there exists a server which can verify the authentication, authorization and/or identity of the caller. This is a generic representation of an OAuth, IAM or directory system, which controls access to these resources. Additionally, there exists an Ephemeral IAM server which controls access for the stored resources (using an approach like the [IAM Access](#iam-access) section above). As shown by the dotted lines, trust boundaries exist between each compute component, the API gateway and the auth/identity server, even though many or all of the elements could be in the same application.
 
@@ -115,7 +117,7 @@ As an example, consider the architecture below. An API gateway connects to a com
 
 ### Exploring Different Levels of Trust
 
-Architects have to select a trust configuration between components, using quantative factors like risk score/tolerance, velocity of project, as well as subjective security goals. Each example below details trust boundary relationships to better explain the implications of trusting a certain resource. The threat level of a specific resource as a color from green (safe) to red (dangerous) will outline which resources shouldn't be trusted.
+Architects have to select a trust configuration between components, using quantitative factors like risk score/tolerance, velocity of project, as well as subjective security goals. Each example below details trust boundary relationships to better explain the implications of trusting a certain resource. The threat level of a specific resource as a color from green (safe) to red (dangerous) will outline which resources shouldn't be trusted.
 
 #### 1. No trust example
 
@@ -137,7 +139,7 @@ This could be a necessary approach for applications found in financial, military
 
 #### 2. High trust example
 
-Next, consider the an opposite approach, where everything is trusted. In this instance, the "dangerous" user input is trusted and essentially handed directly to a high criticality business component. The auth/identity resource is not used at all. In this instance, there is higher likelihood of a successful attack against the system, because there are no controls in place to prevent it. Additionally, this setup could be considered wasteful, as both the auth/identity and ephemeral IAM servers are not necessarily performing their intended function. *(These could be shared corporate resources that aren't being used to their full potential).*
+Next, consider the opposite approach, where everything is trusted. In this instance, the "dangerous" user input is trusted and essentially handed directly to a high criticality business component. The auth/identity resource is not used at all. In this instance, there is higher likelihood of a successful attack against the system, because there are no controls in place to prevent it. Additionally, this setup could be considered wasteful, as both the auth/identity and ephemeral IAM servers are not necessarily performing their intended function. *(These could be shared corporate resources that aren't being used to their full potential).*
 
 ![Complete Trust Across Boundaries](../assets/Secure_Cloud_Architecture_Trust_Boundaries_3.png)
 
@@ -151,9 +153,9 @@ This is an unlikely architecture for all but the simplest and lowest risk applic
 
 #### 3. Some trust example
 
-Most applications will use a trust boundary configuration like this. Using knowledge from a risk and attack surface analysis, security can reasonably assign trust to low risk components or processes, and verify only when necessary. This prevents wasting valuable security resources, but also limits the complexity and efficiency loss due to additional security overhead.
+Use risk analysis to place and configure access controls, rather than to omit verification of internal requests. A gateway can perform shared authentication checks, while services enforce authorization that requires resource or business context. See [gateway and service-level authorization](Microservices_Security_Cheat_Sheet.md#service-level-authorization).
 
-Notice in this example, that the API gateway checks the auth/identity of a user, then immediately passes the request on to the compute instance. The instance doesn't need to re-verify, and performs it's operation. However, as the compute instance is working with untrusted user inputs (designated yellow for some trust), it is still necessary to assume an ephemeral identity to access the storage system.
+In this example, the compute instance must authenticate the calling gateway, validate propagated user context, and enforce permissions for the requested operation. Prevent direct access that bypasses gateway checks. The instance uses its own least-privileged identity to access storage; an authenticated user does not automatically authorize every storage operation.
 
 ![Some Trust Across Boundaries](../assets/Secure_Cloud_Architecture_Trust_Boundaries_4.png)
 
@@ -170,7 +172,7 @@ By nature, this approach limits the pros and cons of both previous examples. Thi
 
 ### Web Application Firewall
 
-Web application firewalls (WAF) are used to monitor or block common attack payloads (like [XSS](https://owasp.org/www-community/attacks/xss/) and [SQLi](https://owasp.org/www-community/attacks/SQL_Injection)), or allow only specific request types and patterns. Applications should use them as a first line of defense, attaching them to entry points like load balancers or API gateways, to handle potentially malicious content before it reaches application code. Cloud providers curate base rule sets which will block or monitor common malicious payloads:
+Web Application Firewalls (WAF) are used to monitor or block common attack payloads (like [XSS](https://owasp.org/www-community/attacks/xss/) and [SQLi](https://owasp.org/www-community/attacks/SQL_Injection)), or allow only specific request types and patterns. Applications should use them as a first line of defense, attaching them to entry points like load balancers or API gateways, to handle potentially malicious content before it reaches application code. Cloud service providers curate base rule sets which will block or monitor common malicious payloads:
 
 - [AWS Managed Rules](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html)
 - [GCP WAF Rules](https://cloud.google.com/armor/docs/waf-rules)
@@ -190,8 +192,8 @@ Logging and monitoring is required for a truly secure application. Developers sh
 
 For proper logging, consider:
 
-- Logging all [layer 7](https://en.wikipedia.org/wiki/OSI_model) HTTP calls with headers, caller metadata, and responses
-    - Payloads may not be logged depending on where logging occurs (before TLS termination) and the sensitivity of data
+- Logging HTTP request outcomes using an allow-listed event schema, such as method, route template, status, correlation ID, and a non-secret actor identifier
+    - Exclude credentials, session cookies, access tokens, and sensitive request or response content before collection. [HTTP authentication fields contain credentials](https://www.rfc-editor.org/rfc/rfc9110.html#section-11.4); do not capture all headers or bodies by default. Follow the [Logging Cheat Sheet data exclusions](Logging_Cheat_Sheet.md#data-to-exclude).
 - Logging internal actions with actor and permission information
 - Sending trace IDs through the entire request lifecycle to track errors or malicious actions
 - Masking or removing sensitive data
@@ -218,7 +220,7 @@ WAFs can also have monitoring or alerting attached to them for counting maliciou
 
 ### DDoS Protection
 
-Cloud service companies offer a range of simple and advanced DDoS protection products, depending on application needs. Simple DDOS protection can often be employed using WAFs with rate limits and route blocking rules, while more advanced protection may require specific managed tooling offered by the cloud provider. Examples include:
+Cloud service providers offer a range of DDoS protection products, from simple to advanced, depending on application needs. Simple DDoS protection can often be implemented using WAFs with rate limits and route blocking rules. More advanced protection may require specific managed tools offered by the cloud service provider. Examples include:
 
 - [AWS Shield](https://aws.amazon.com/shield/)
 - [GCP Cloud Armor Managed Protection](https://cloud.google.com/armor/docs/managed-protection-overview)
@@ -230,7 +232,7 @@ The decision to enable advanced DDoS protections for a specific application shou
 
 The Shared Responsibility Model is a framework for cloud service providers (CSPs) and those selling cloud based services to properly identify and segment the responsibilities of the developer and the provider. This is broken down into different levels of control, corresponding to different elements/layers of the technology stack. Generally, components like physical computing devices and data center space are the responsibility of the CSP. Depending on the level of [management](#self-managed-tooling), the developer could be responsible for the entire stack from operating system on up, or only for some ancillary functionality, code or administration.
 
-This responsiblitity model is often categorized into three levels of service called:
+This responsibility model is often categorized into three levels of service called:
 
 - Infrastructure as a Service ([IaaS](#iaas))
 - Platform as a Service ([PaaS](#paas))
@@ -267,16 +269,16 @@ Platform as a Service is in the middle between IaaS and SaaS. The developer cont
 - Application software
 - External data storage
 
-It provides neatly packaged code hosting and containerized options, which allow smaller development teams or less experienced developers a way to get started with their applications while ignoring more complex or superfluous computing tasks. It is generally less expensive than IaaS, while still retaining some control over elements that a SaaS system does not provide. However, developers could have problems with the specific limitations of the offering used, or issues with compatability, as the code must work with the correct container, framework or language version.
+It provides neatly packaged code hosting and containerized options, which allow smaller development teams or less experienced developers a way to get started with their applications while ignoring more complex or superfluous computing tasks. It is generally less expensive than IaaS, while still retaining some control over elements that a SaaS system does not provide. However, developers could have problems with the specific limitations of the offering used, or issues with compatibility, as the code must work with the correct container, framework or language version.
 
 Also, while scalability is very dependent on provider and setup, PaaS usually provides higher scalability due to containerization options and common, repeatable base OS systems. Compared to IaaS, where scalability must be built by the developer, and SaaS, where the performance is very platform specific.
 
 |              Pros              |              Cons              |
 |:------------------------------:|:------------------------------:|
-| Easier to onboard and maintain | Potential compatability issues |
+| Easier to onboard and maintain | Potential compatibility issues |
 |       Better scalability       |  Offering specific limitations |
 
-Manual security in PaaS solutions is similary less extensive (compared to IaaS). Application specific authentication and authorization must still be handled by the developer, along with any access to external data systems. However, the CSP is responsible for securing containerized instances, operating systems, ephemeral files systems, and certain networking controls.
+Manual security in PaaS solutions is similarly less extensive (compared to IaaS). Application specific authentication and authorization must still be handled by the developer, along with any access to external data systems. However, the CSP is responsible for securing containerized instances, operating systems, ephemeral files systems, and certain networking controls.
 
 ### SaaS
 
@@ -296,11 +298,11 @@ The entire technology stack is controlled by the provider (cloud service or othe
 
 Security with SaaS is simultaneously the easiest and most difficult, due to the lack of control expressed above. A developer will only have to manage a small set of security functions, like some access controls, the data trust/sharing relationship with integrations, and any security implications of customizations. All other layers of security are controlled by the provider. This means that any security fixes will be out of the developer's hands, and therefore could be handled in a untimely manner, or not to a satisfactory level of security for an end user (depending on security needs). However, such fixes won't require end user involvement and resources, making them easier from the perspective of cost and maintenance burden.
 
-*Note: When looking for SaaS solutions, consider asking for a company's attestation records and proof of compliance to standards like [ISO 27,001](https://www.iso.org/standard/27001). Listed below are links to each of the major CSPs' attestation sites for additional understanding.*
+*Note: When looking for SaaS solutions, consider asking for a company's attestation records and proof of compliance to standards like [ISO 27001](https://www.iso.org/standard/27001). Listed below are links to each of the major CSPs' attestation sites for additional understanding.*
 
 - [GCP](https://cloud.google.com/security/compliance/offerings)
-- [AWS](https://docs.aws.amazon.com/whitepapers/latest/gxp-systems-on-aws/aws-certifications-and-attestations.html)
-- [Azure](https://learn.microsoft.com/en-us/azure/compliance/offerings/)
+- [AWS](https://aws.amazon.com/compliance/programs/)
+- [Azure](https://servicetrust.microsoft.com/ViewPage/HomePageVNext)
 
 ### Self-managed tooling
 
@@ -314,7 +316,7 @@ AWS provides an excellent example of this difference in management, identifying 
 
 #### Update Strategy for Self-managed Services
 
-Self-managed tooling will require additional overhead by developers and support engineers. Depending on the tool, basic version updates, upgrades to images like [AMIs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) or [Compute Images](https://cloud.google.com/compute/docs/images), or other operating system level maintence will be required. Use automation to regularly update minor versions or [images](https://docs.aws.amazon.com/systems-manager/latest/userguide/automation-tutorial-update-patch-golden-ami.html), and schedule time in development cycles for refreshing stale resources.
+Self-managed tooling will require additional overhead by developers and support engineers. Depending on the tool, basic version updates, upgrades to images like [AMIs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) or [Compute Images](https://cloud.google.com/compute/docs/images), or other operating system level maintenance will be required. Use automation to regularly update minor versions or [images](https://docs.aws.amazon.com/systems-manager/latest/userguide/automation-tutorial-update-patch-golden-ami.html), and schedule time in development cycles for refreshing stale resources.
 
 #### Avoid Gaps in Managed Service Security
 
@@ -325,7 +327,7 @@ Managed services will offer some level of security, like updating and securing t
 - Code security ([OWASP Top 10](https://owasp.org/www-project-top-ten/))
 - Third-party library patching
 
-Use documentation from the cloud provider to understand which security will be the responsbility of what party. Examples of this research for serverless functions:
+Refer to the documentation provided by the cloud service provider to understand which aspects of security are the responsibility of each party, based on the selected service. For example, in the case of serverless functions:
 
 - [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/lambda-security.html)
 - [GCP Cloud Functions](https://cloud.google.com/functions/docs/securing)
@@ -333,5 +335,5 @@ Use documentation from the cloud provider to understand which security will be t
 
 ## References
 
-- [Secure Product Design](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Product_Design_Cheat_Sheet.html)
-- [CISA Security Technical Reference Architecture](https://www.cisa.gov/sites/default/files/publications/Cloud%20Security%20Technical%20Reference%20Architecture.pdf)
+- [CISA: Cloud Security Technical Reference Architecture](https://www.cisa.gov/sites/default/files/publications/Cloud%20Security%20Technical%20Reference%20Architecture.pdf)
+- [CISA: Zero Trust Maturity Model Version 2.0](https://www.cisa.gov/sites/default/files/2023-04/zero_trust_maturity_model_v2_508.pdf)

@@ -1,0 +1,8 @@
+# Subset of ../../requirements.txt used by extract_links.py to render Markdown
+# the same way as the published site. Versions come from requirements.txt
+# through the constraint below, so only that file needs version bumps.
+-c ../../requirements.txt
+Markdown
+pymdown-extensions
+Pygments
+PyYAML

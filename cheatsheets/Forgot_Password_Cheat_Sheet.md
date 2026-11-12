@@ -17,7 +17,7 @@ The following short guidelines can be used as a quick reference to protect the f
     - **Sufficiently long to protect against brute-force attacks.**
     - **Stored securely.**
     - **Single use and expire after an appropriate period.**
-- **Do not make a change to the account until a valid token is presented, such as locking out the account**
+- **Do not make a change to the account until a valid token is presented, such as locking out the account.**
 
 This cheat sheet is focused on resetting users passwords. For guidance on resetting multifactor authentication (MFA), see the relevant section in the [Multifactor Authentication Cheat Sheet](Multifactor_Authentication_Cheat_Sheet.md#resetting-mfa).
 
@@ -45,6 +45,21 @@ Once the user has proved their identity by providing the token (sent via an emai
 - Once they have set their new password, the user should then login through the usual mechanism. Don't automatically log the user in, as this introduces additional complexity to the authentication and session handling code, and increases the likelihood of introducing vulnerabilities.
 - Ask the user if they want to invalidate all of their existing sessions, or invalidate the sessions automatically.
 
+### Account Recovery After Suspected Compromise
+
+A password reset alone may not restore control of a compromised account. An attacker may still have an active session or may have changed recovery information or MFA methods.
+
+When recovering a potentially compromised account:
+
+- Do not rely solely on recently added or changed recovery information. Use independent, previously established recovery evidence, such as saved recovery codes, in a combination that meets the account's assurance requirements. See [NIST account recovery guidance](https://pages.nist.gov/800-63-4/sp800-63b/events/#recovery).
+- Do not automatically restore superseded recovery addresses or phone numbers; they may have been replaced because they were lost or compromised.
+- Promptly suspend or invalidate authenticators identified as compromised, following [NIST guidance for compromised authenticators](https://pages.nist.gov/800-63-4/sp800-63b/events/#loss-theft-damage-and-compromise).
+- Review recovery addresses, phone numbers, and MFA methods with the verified account owner, and remove unauthorized changes. [Google's compromised-account guidance](https://support.google.com/accounts/answer/6294825) identifies these settings for review and correction.
+- After successful recovery, invalidate existing sessions and outstanding password reset and recovery links or codes so they cannot restore an attacker's access. See [session invalidation guidance](Session_Management_Cheat_Sheet.md#session-expiration).
+- Notify the user through all applicable registered notification addresses, including established channels that remain safe to use. Include instructions and contact information for reporting unauthorized recovery, as described in [NIST account notification guidance](https://pages.nist.gov/800-63-4/sp800-63b/events/#notification).
+
+See [reauthentication after risk events](Authentication_Cheat_Sheet.md#re-authentication-after-risk-events) and [MFA recovery](Multifactor_Authentication_Cheat_Sheet.md#resetting-mfa) for related controls.
+
 ## Methods
 
 In order to allow a user to request a password reset, you will need to have some way to identify the user, or a means to reach out to them through a side-channel.
@@ -62,8 +77,8 @@ These methods can be used together to provide a greater degree of assurance that
 
 It is essential to employ good security practices for the reset identifiers (tokens, codes, PINs, etc.). Some points don't apply to the [offline methods](#offline-methods), such as the lifetime restriction. All tokens and codes should be:
 
-- Generated [cryptographically secure random number generator](Cryptographic_Storage_Cheat_Sheet.md#secure-random-number-generation).
-    - It is also possible to use JSON Web Tokens (JWTs) in place of random tokens, although this can introduce additional vulnerability, such as those discussed in the [JSON Web Token Cheat Sheet](JSON_Web_Token_for_Java_Cheat_Sheet.md).
+- Generated using a [cryptographically secure random number generator](Cryptographic_Storage_Cheat_Sheet.md#secure-random-number-generation).
+    - It is also possible to use JSON Web Tokens (JWTs) in place of random tokens, although this can introduce additional vulnerability, such as those discussed in the [JSON Web Token Cheat Sheet](JSON_Web_Token_Cheat_Sheet.md).
 - Long enough to protect against brute-force attacks.
 - Linked to an individual user in the database.
 - Invalidated after they have been used.
@@ -73,12 +88,12 @@ It is essential to employ good security practices for the reset identifiers (tok
 
 URL tokens are passed in the query string of the URL, and are typically sent to the user via email. The basic overview of the process is as follows:
 
-1. Generate a token to the user and attach it in the URL query string.
+1. Generate a token for the user and attach it in the URL query string.
 2. Send this token to the user via email.
-   - Don't rely on the [Host](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host) header while creating the reset URLs to avoid [Host Header Injection](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/07-Input_Validation_Testing/17-Testing_for_Host_Header_Injection) attacks. The URL should be either be hard-coded, or should be validated against a list of trusted domains.
+   - Don't rely on the [Host](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host) header while creating the reset URLs to avoid [Host Header Injection](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/07-Input_Validation_Testing/17-Testing_for_Host_Header_Injection) attacks. The URL should either be hard-coded, or validated against a list of trusted domains.
    - Ensure that the URL is using HTTPS.
 3. The user receives the email, and browses to the URL with the attached token.
-   - Ensure that the reset password page adds the [Referrer Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy) tag with the `noreferrer` value in order to avoid [referrer leakage](https://portswigger.net/kb/issues/00500400_cross-domain-referer-leakage).
+   - Ensure that the reset password page adds the [Referrer Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy) tag with the `no-referrer` value in order to avoid [referrer leakage](https://portswigger.net/kb/issues/00500400_cross-domain-referer-leakage).
    - Implement appropriate protection to prevent users from brute-forcing tokens in the URL, such as rate limiting.
 4. If required, perform any additional validation steps such as requiring the user to answer [security questions](#security-questions).
 5. Let the user create a new password and confirm it. Ensure that the same password policy used elsewhere in the application is applied.
@@ -102,16 +117,7 @@ Offline methods differ from other methods by allowing the user to reset their pa
 
 These identifiers should be stored offline and in a secure fashion (*e.g.* password managers), and the backend should properly follow the [general security practices](#general-security-practices). Some implementations are built on [hardware OTP tokens](Multifactor_Authentication_Cheat_Sheet.md#hardware-otp-tokens), [certificates](Multifactor_Authentication_Cheat_Sheet.md#certificates), or any other implementation that could be used inside of an enterprise. These are out of scope for this cheat sheet.
 
-#### Backup Codes
-
-Backup codes should be provided to the user upon registering where the user should store them offline in a secure place (such as their password manager). Some companies that implement this method are [Google](https://support.google.com/accounts/answer/1187538), [GitHub](https://help.github.com/en/github/authenticating-to-github/recovering-your-account-if-you-lose-your-2fa-credentials), and [Auth0](https://auth0.com/docs/mfa/guides/reset-user-mfa#recovery-codes).
-
-While implementing this method, the following practices should be followed:
-
-- Minimum length of 8 digits, 12 for improved security.
-- A user should have multiple recovery codes at any given time to ensure that one of them works (most services provide the user with ten backup codes).
-- A process should be implemented to allow the user to invalidate all existing recovery codes, in case they are compromised by a third party.
-- Rate limiting and other protections should be implemented to prevent an attacker from brute-forcing the backup codes.
+If account has MFA enabled, and you are looking for MFA recovery, different methods can be found in the corresponding [Multifactor Authentication cheat sheet](Multifactor_Authentication_Cheat_Sheet.md#resetting-mfa).
 
 ### Security Questions
 
@@ -120,3 +126,8 @@ Security questions should not be used as the sole mechanism for resetting passwo
 ## Account Lockout
 
 Accounts should not be locked out in response to a forgotten password attack, as this can be used to deny access to users with known usernames. For more details on account lockouts, see the [Authentication Cheat Sheet](Authentication_Cheat_Sheet.md).
+
+## References
+
+- [NIST SP 800-63B-4: Account Recovery](https://pages.nist.gov/800-63-4/sp800-63b/events/#recovery)
+- [OWASP Application Security Verification Standard (ASVS): V6.4 Authentication Factor Lifecycle and Recovery](https://github.com/OWASP/ASVS/blob/master/5.0/en/0x15-V6-Authentication.md#v64-authentication-factor-lifecycle-and-recovery)

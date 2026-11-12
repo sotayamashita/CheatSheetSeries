@@ -56,7 +56,7 @@ The `Referrer-Policy` HTTP header controls how much referrer information (sent v
 
 #### Recommendation
 
-Referrer policy has been supported by browsers since 2014. Today, the default behavior in modern browsers is to no longer send all referrer information (origin, path, and query string) to the same site but to only send the origin to other sites. However, since not all users may be using the latest browsers we suggest forcing this behavior by sending this header on all responses.
+Modern browsers default to [`strict-origin-when-cross-origin`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Referrer-Policy#strict-origin-when-cross-origin): same-origin requests include the origin, path, and query string in the `Referer` header; cross-origin requests include only the origin, except HTTPS-to-HTTP requests, which omit the header. Set the header explicitly rather than relying on browser defaults.
 
 > `Referrer-Policy: strict-origin-when-cross-origin`
 
@@ -64,7 +64,7 @@ Referrer policy has been supported by browsers since 2014. Today, the default be
 
 ### Content-Type
 
-The `Content-Type` representation header is used to indicate the original media type of the resource (before any content encoding is applied for sending). If not set correctly, the resource (e.g. an image) may be interpreted as HTML, making XSS vulnerabilities possible.
+The [`Content-Type`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type) representation header is used to indicate the original media type of the resource (before any content encoding is applied for sending). If not set correctly, the resource (e.g. an image) may be interpreted as HTML, making XSS vulnerabilities possible.
 
 Although it is recommended to always set the `Content-Type` header correctly, it would constitute a vulnerability only if the content is intended to be rendered by the client and the resource is untrusted (provided or modified by a user).
 
@@ -73,11 +73,28 @@ Although it is recommended to always set the `Content-Type` header correctly, it
 > `Content-Type: text/html; charset=UTF-8`
 
 - *NOTE:* the `charset` attribute is necessary to prevent XSS in **HTML** pages
-- *NOTE*: the `text/html` can be any of the possible [MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
+- *NOTE*: the `Content-Type` can be any of the possible [MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
+
+### Cache-Control
+
+The `Cache-Control` header defines how responses are cached by browsers and intermediate caches.
+
+#### Recommendation
+
+- Use [`no-store`](https://www.rfc-editor.org/rfc/rfc9111.html#section-5.2.2.5) for sensitive responses to prohibit storage in compliant HTTP caches.
+- Use `private` to allow caching only in non-shared (user-specific) caches and to prevent storage in shared caches (note that private caches may still persist the response).
+- Avoid relying on default caching behavior for sensitive or protected content.
+- Be aware that `no-cache` does not prevent caching; it allows caches to store responses. It requires revalidation with the origin server before reuse.
+
+`no-store` does not control every storage mechanism: the [Cache API does not honor HTTP caching headers](https://developer.mozilla.org/en-US/docs/Web/API/Cache). Explicitly exclude sensitive responses from application-managed caches and remove existing sensitive entries; see [Offline Applications](HTML5_Security_Cheat_Sheet.md#offline-applications).
+
+#### References
+
+- [MDN - Cache-Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control)
 
 ### Set-Cookie
 
-The `Set-Cookie` HTTP response header is used to send a cookie from the server to the user agent, so the user agent can send it back to the server later. To send multiple cookies, multiple Set-Cookie headers should be sent in the same response.
+The [`Set-Cookie`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie) HTTP response header is used to send a cookie from the server to the user agent, so the user agent can send it back to the server later. To send multiple cookies, multiple Set-Cookie headers should be sent in the same response.
 
 This is not a security header per se, but its security attributes are crucial.
 
@@ -87,7 +104,7 @@ This is not a security header per se, but its security attributes are crucial.
 
 ### Strict-Transport-Security (HSTS)
 
-The HTTP `Strict-Transport-Security` response header (often abbreviated as HSTS) lets a website tell browsers that it should only be accessed using HTTPS, instead of using HTTP.
+The HTTP [`Strict-Transport-Security`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security) response header (often abbreviated as HSTS) instructs browsers to only access the website using HTTPS, even if a user attempts to connect over HTTP.
 
 #### Recommendation
 
@@ -95,7 +112,9 @@ The HTTP `Strict-Transport-Security` response header (often abbreviated as HSTS)
 
 - *NOTE*: Read carefully how this header works before using it. If the HSTS header is misconfigured or if there is a problem with the SSL/TLS certificate being used, legitimate users might be unable to access the website. For example, if the HSTS header is set to a very long duration and the SSL/TLS certificate expires or is revoked, legitimate users might be unable to access the website until the HSTS header duration has expired.
 
-Please checkout [HTTP Strict Transport Security Cheat Sheet](HTTP_Strict_Transport_Security_Cheat_Sheet.md) for more information.
+See the [HSTS preload requirements](https://hstspreload.org/) before requesting preload inclusion.
+
+Please check out [HTTP Strict Transport Security Cheat Sheet](HTTP_Strict_Transport_Security_Cheat_Sheet.md) for more information.
 
 ### Expect-CT ❌
 
@@ -107,7 +126,7 @@ Do not use it. Mozilla [recommends](https://developer.mozilla.org/en-US/docs/Web
 
 ### Content-Security-Policy (CSP)
 
-Content Security Policy (CSP) is a security feature that is used to specify the origin of content that is allowed to be loaded on a website or in a web applications. It is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross-Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement to distribution of malware.
+Content Security Policy (CSP) is a security feature that is used to specify the origin of content that is allowed to be loaded on a website or in a web application. It is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross-Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement to distribution of malware.
 
 - *NOTE*: This header is relevant to be applied in pages which can load and interpret scripts and code, but might be meaningless in the response of a REST API that returns content that is not going to be rendered.
 
@@ -123,10 +142,10 @@ The `Access-Control-Allow-Origin` is a CORS (cross-origin resource sharing) head
 
 #### Recommendation
 
-If you use it, set specific [origins](https://developer.mozilla.org/en-US/docs/Glossary/Origin) instead of `*`. Checkout [Access-Control-Allow-Origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) for details.
+If you use it, set specific [origins](https://developer.mozilla.org/en-US/docs/Glossary/Origin) instead of `*`. Check out [Access-Control-Allow-Origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) for details.
 > `Access-Control-Allow-Origin: https://yoursite.com`
 
-- *NOTE*: The use '*' might be necessary depending on your needs. For example, for a public API that should be accessible from any origin, it might be necessary to allow '*'.
+- *NOTE*: The use of '\*' might be necessary depending on your needs. For example, for a public API that should be accessible from any origin, it might be necessary to allow '\*'.
 
 ### Cross-Origin-Opener-Policy (COOP)
 
@@ -136,16 +155,16 @@ This header works together with Cross-Origin-Embedder-Policy (COEP) and Cross-Or
 
 This mechanism protects against attacks like Spectre which can cross the security boundary established by Same Origin Policy (SOP) for resources in the same browsing context group.
 
-As this headers are very related to browsers, it may not make sense to be applied to REST APIs or clients that are not browsers.
+As these headers are very related to browsers, it may not make sense to be applied to REST APIs or clients that are not browsers.
 
 #### Recommendation
 
 Isolates the browsing context exclusively to same-origin documents.
-> `HTTP Cross-Origin-Opener-Policy: same-origin`
+> `Cross-Origin-Opener-Policy: same-origin`
 
 ### Cross-Origin-Embedder-Policy (COEP)
 
-The HTTP `Cross-Origin-Embedder-Policy` (COEP) response header prevents a document from loading any cross-origin resources that don't explicitly grant the document permission (using [CORP](#cross-origin-resource-policy) or CORS).
+The HTTP [`Cross-Origin-Embedder-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy) (COEP) response header prevents a document from loading any cross-origin resources that don't explicitly grant the document permission (using [CORP](#cross-origin-resource-policy-corp) or CORS).
 
 - *NOTE*: Enabling this will block cross-origin resources not configured correctly from loading.
 
@@ -154,12 +173,12 @@ The HTTP `Cross-Origin-Embedder-Policy` (COEP) response header prevents a docume
 A document can only load resources from the same origin, or resources explicitly marked as loadable from another origin.
 > `Cross-Origin-Embedder-Policy: require-corp`
 
-- *NOTE*: you can bypass it for specific resources by adding the `crossorigin` attribute:
+- *NOTE*: The `crossorigin` attribute requests the resource in CORS mode. The resource server must [permit the request through CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy#require-corp); the attribute alone does not grant permission:
 - `<img src="https://thirdparty.com/img.png" crossorigin>`
 
 ### Cross-Origin-Resource-Policy (CORP)
 
-The `Cross-Origin-Resource-Policy` (CORP) header allows you to control the set of origins that are empowered to include a resource. It is a robust defense against attacks like [Spectre](https://meltdownattack.com/), as it allows browsers to block a given response before it enters an attacker's process.
+The [`Cross-Origin-Resource-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy) (CORP) header allows you to control the set of origins that are empowered to include a resource. It is a robust defense against attacks like [Spectre](https://meltdownattack.com/), as it allows browsers to block a given response before it enters an attacker's process.
 
 #### Recommendation
 
@@ -179,18 +198,9 @@ Set it and disable all the features that your site does not need or allow them o
 
 - *NOTE*: This example is disabling geolocation, camera, and microphone for all domains.
 
-### FLoC (Federated Learning of Cohorts)
-
-FLoC is a method proposed by Google in 2021 to deliver interest-based advertisements to groups of users ("cohorts"). The [Electronic Frontier Foundation](https://www.eff.org/deeplinks/2021/03/googles-floc-terrible-idea), [Mozilla](https://blog.mozilla.org/en/privacy-security/privacy-analysis-of-floc/), and others believe FLoC does not do enough to protect users' privacy.
-
-#### Recommendation
-
-A site can declare that it does not want to be included in the user's list of sites for cohort calculation by sending this HTTP header.
-> Permissions-Policy: interest-cohort=()
-
 ### Server
 
-The `Server` header describes the software used by the origin server that handled the request — that is, the server that generated the response.
+The [`Server`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server) header describes the software used by the origin server that handled the request — that is, the server that generated the response.
 
 This is not a security header, but how it is used is relevant for security.
 
@@ -239,6 +249,34 @@ MvcHandler.DisableMvcResponseHeader = true;
 
 - *NOTE*: Remember that attackers have other means of fingerprinting your tech stack.
 
+### X-Robots-Tag
+
+The HTTP `X-Robots-Tag` response header controls how search engines and other automated crawlers index and display resources such as PDFs, images, and other non-HTML content.
+It functions similarly to the `<meta name="robots">` tag, but is applied via the HTTP response header, allowing greater flexibility (e.g., for non-HTML files or server-wide rules).
+
+```none
+X-Robots-Tag: noindex, nofollow
+```
+
+- **Note:** Only compliant crawlers respect these directives, and they must still make an HTTP request to read the headers before deciding how to handle the content.
+
+#### Recommendation
+
+Use the `X-Robots-Tag` header to control crawler behavior:
+
+- For **private or sensitive content** you don’t want indexed:
+
+  > `X-Robots-Tag: noindex, nofollow`
+  > This prevents compliant search engines from indexing the resource or following links on it.
+
+- For **public content** you want indexed and discoverable (e.g., documentation, datasets):
+
+  > `X-Robots-Tag: index, follow`
+  > This allows search engines to index the resource and follow its links.
+
+You can also use other directives such as `noarchive`, `nosnippet`, or `noimageindex` depending on your needs.
+Server configuration can apply this header selectively — for example, only on specific file types (like PDFs or images).
+
 ### X-DNS-Prefetch-Control
 
 The `X-DNS-Prefetch-Control` HTTP response header controls DNS prefetching, a feature by which browsers proactively perform domain name resolution on both links that the user may choose to follow as well as URLs for items referenced by the document, including images, CSS, JavaScript, and so forth.
@@ -250,15 +288,25 @@ If you do not control links on your website, you might want to set `off` as a va
 
 > `X-DNS-Prefetch-Control: off`
 
-- *NOTE*: Do not rely in this functionality for anything production sensitive: it is not standard or fully supported and implementation may vary among browsers.
+- *NOTE*: Do not rely on this functionality for anything production sensitive: it is not standard or fully supported and implementation may vary among browsers.
 
-### Public-Key-Pins (HPKP)
+### Public-Key-Pins (HPKP) ❌
 
-The HTTP `Public-Key-Pins` response header is used to associate a specific cryptographic public key with a certain web server to decrease the risk of MITM attacks with forged certificates.
+The HTTP `Public-Key-Pins` response header was used to associate a specific cryptographic public key with a web server to mitigate MITM attacks with forged certificates. It was removed from Chromium in 2018 and is unsupported by all modern browsers.
 
 #### Recommendation
 
-This header is deprecated and should not be used anymore.
+Do not use. Remove any `Public-Key-Pins` or `Public-Key-Pins-Report-Only` headers from production. Rely on Certificate Transparency (CT) and CAA DNS records, which provide superior compromise detection without the operational brittleness of pinning.
+
+### Secure File Download Headers
+
+When serving user-provided files, proper HTTP headers should be used to prevent unintended execution in the browser.
+
+- Use `Content-Disposition: attachment` to force download instead of inline rendering.
+- Use `Content-Type: application/octet-stream` for unknown or binary files.
+- Ensure `X-Content-Type-Options: nosniff` is set to prevent MIME type sniffing.
+
+These headers help reduce risks such as Cross-Site Scripting (XSS) and unintended file execution.
 
 ## Adding HTTP Headers in Different Technologies
 
@@ -274,9 +322,18 @@ header("X-Frame-Options: DENY");
 
 Below is an `.htaccess` sample configuration which sets the `X-Frame-Options` header in Apache.
 
+As described in the [Apache documentation](https://httpd.apache.org/docs/2.4/mod/mod_headers.html#header), `Header set` (default `onsuccess`) and `Header always set` operate on separate internal header tables.
+
+In some cases, both header tables may be used, which can result in duplicate headers if the same header is configured in both contexts.
+
+If a header needs to be removed entirely, it should be unset in both contexts (`onsuccess` and `always`).
+
+To avoid duplication and ensure the header is sent on all responses, unset it first and then use `always set`:
+
 ```lang-bsh
 <IfModule mod_headers.c>
-Header set X-Frame-Options "DENY"
+  Header unset X-Frame-Options
+  Header always set X-Frame-Options "DENY"
 </IfModule>
 ```
 
@@ -306,15 +363,17 @@ http-response set-header X-Frame-Options DENY
 
 ### Nginx
 
-Below is a sample configuration, it sets the `X-Frame-Options` header in Nginx.
+Below is a sample configuration, it sets the `X-Frame-Options` header in Nginx. Note that without the `always` option, the header will only be sent for certain status codes, as described in [the nginx documentation](https://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header).
 
 ```lang-none
-add_header "X-Frame-Options" "DENY";
+add_header "X-Frame-Options" "DENY" always;
 ```
+
+Also note that `add_header` directives are inherited from the previous configuration level only if there are no `add_header` directives defined on the current level, as described in [the nginx documentation](https://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header). For example, adding `add_header Cache-Control "no-cache";` inside a `location` block silently drops every security header set in the enclosing `server` block for that location. Repeat the security headers in each such block, keep them in a shared file pulled in with `include`, or, from nginx 1.29.3, set [`add_header_inherit merge;`](https://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header_inherit) so that the headers from the previous level are kept.
 
 ### Express
 
-You can use [helmet](https://www.npmjs.com/package/helmet) to setup HTTP headers in Express. The code below is sample for adding the `X-Frame-Options` header.
+You can use [helmet](https://www.npmjs.com/package/helmet) to setup HTTP headers in Express. The code below is a sample for adding the `X-Frame-Options` header.
 
 ```javascript
 const helmet = require('helmet');
@@ -340,17 +399,6 @@ Online tools usually test the homepage of the given address. But SmartScanner sc
 
 ## References
 
-- [Mozilla: X-Frame-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options)
-- [Mozilla: X-XSS-Protection](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)
-- [hstspreload.org](https://hstspreload.org/)
-- [Mozilla: Strict-Transport-Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security)
-- [Mozilla: Content-Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)
-- [Mozilla: Expect-CT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect-CT)
-- [Mozilla: Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)
-- [content-security-policy.com](https://content-security-policy.com/)
-- [Mozilla: Cross-Origin-Opener-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy)
-- [resourcepolicy.fyi](https://resourcepolicy.fyi/)
-- [Mozilla: Cross-Origin-Resource-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy)
-- [Mozilla: Cross-Origin-Embedder-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy)
-- [Mozilla: Server Header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server)
-- [Linked OWASP project: Secure Headers Project](https://owasp.org/www-project-secure-headers/)
+- [MDN Web Docs: X-Content-Type-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options)
+- [MDN Web Docs: Cross-Origin-Opener-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy)
+- [OWASP Secure Headers Project: Response Headers](https://owasp.github.io/www-project-secure-headers/response-headers/)

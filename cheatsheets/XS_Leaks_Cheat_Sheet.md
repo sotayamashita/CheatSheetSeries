@@ -49,19 +49,19 @@ SameSite cookies are a strong **defense-in-depth** mechanism against **some** cl
 
 ![XS Leaks eTLD explanation](../assets/XS_Leaks_eTLD.png)
 
-In the context of the SameSite attribute, we consider the site to be the combination of the TLD (top-level domain) and the domain name before it. For example:
+For SameSite cookies, a [site](https://developer.mozilla.org/en-US/docs/Glossary/Site) consists of the scheme and the registrable domain (eTLD+1). The port is not part of the site. For example:
 
-| Full URL                                      | Site (eTLD+1)             |
+| Full URL                                      | Site (scheme + eTLD+1)             |
 | --------------------------------------------  | ------------------------  |
-| `https://example.com:443/data?query=test`     | `example.com`             |
+| `https://example.com:443/data?query=test`     | `https://example.com`     |
 
 Why are we talking about eTLD+1 and not just TLD+1? It's because of domains like `.github.io` or `.eu.org`. Such parts are not atomic enough to be compared well. For this reason, a list of "effective" TLDs (eTLDs) was created and can be found [here](https://publicsuffix.org/list/public_suffix_list.dat).
 
-Sites that have the same eTLD+1 are considered SameSite, examples:
+Sites with the same scheme and eTLD+1 are considered same-site. For example:
 
 | Origin A                  | Origin B                   | SameSite?                    |
 | ------------------------- | -------------------------- | ---------------------        |
-| `https://example.com`     | `http://example.com`       | Yes, schemes don't matter    |
+| `https://example.com`     | `http://example.com`       | No, different schemes    |
 | `https://evil.net`        | `https://example.com`      | No, different eTLD+1          |
 | `https://sub.example.com` | `https://data.example.com` | Yes, subdomains don't matter |
 
@@ -87,7 +87,7 @@ then add listener in main document for [blur event](https://developer.mozilla.or
 
 If you don't need other origins to embed your application in a frame, you can consider using one of two mechanisms:
 
-- **Content Security Policy frame ancestors** directive. [Read more about syntax](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-src).
+- **Content Security Policy `frame-ancestors`** directive. [Read more about syntax](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/frame-ancestors).
 - **X-Frame-Options**  - mainly if you want to support old browsers.
 
 Setting up framing protection efficiently blocks the ability to embed your application in a frame on the attacker-controlled origin and protects from other attacks like [Clickjacking](https://cheatsheetseries.owasp.org/cheatsheets/Clickjacking_Defense_Cheat_Sheet.html).
@@ -267,16 +267,18 @@ The principle is simple, a resource loaded from cache memory will load incompara
 
 An attacker can embed a resource on their site that is only accessible to a user with the admin role. Then, using JavaScript, read the load time of a particular resource and, based on this information, deduce whether the resource is in cache or not.
 
+The example selects the first matching [resource timing entry](https://developer.mozilla.org/en-US/docs/Web/API/Performance/getEntriesByType#return_value) already recorded in the timeline. Set `THRESHOLD` for the measurement context; a short duration alone does not prove a cache hit.
+
 ```javascript
-    // Threshold above which we consider a resource to have loaded from the server
+    // Illustrative timing threshold for this measurement context
     // const THRESHOLD = ...
 
     const adminImagePerfEntry = window.performance
-        .getEntries()
-        .filter((entry) => entry.name.endsWith('admin.svg'));
+        .getEntriesByType('resource')
+        .find((entry) => entry.name.endsWith('admin.svg'));
 
-    if (adminImagePerfEntry.duration < THRESHOLD) {
-        console.log('Image loaded from cache!')
+    if (adminImagePerfEntry && adminImagePerfEntry.duration < THRESHOLD) {
+        console.log('Possible cache hit (timing heuristic)');
     }
 ```
 
@@ -306,27 +308,5 @@ You can disable the cache mechanism if you accept the degraded performance relat
 
 ## References
 
-### XS Leaks
-
-- [XS Leaks Wiki](https://xsleaks.dev/)
-- [XS Leaks Attacks & Prevention](https://www.appsecmonkey.com/blog/xs-leaks)
-
-### Fetch Metadata
-
-- [Fetch Metadata and Isolation Policies](https://www.appsecmonkey.com/blog/fetch-metadata)
-- [Protect your resources from attacks with Fetch Metadata](https://web.dev/fetch-metadata/)
-
-### Framing protection
-
-- [Preventing framing with policies](https://pragmaticwebsecurity.com/articles/securitypolicies/preventing-framing-with-policies.html)
-- [CSP 'frame-ancestors' policy](https://content-security-policy.com/frame-ancestors/)
-
-### SameSite
-
-- [SameSite cookies explained](https://web.dev/samesite-cookies-explained/)
-- [SameSite cookies recipes](https://web.dev/samesite-cookie-recipes/)
-
-### COOP and CORP header
-
-- [Making your site "cross-origin isolated"](https://web.dev/coop-coep/)
-- [MDN Web Docs about CORP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cross-Origin_Resource_Policy_%28CORP%29)
+- [MDN: Cross-Site Leaks](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/XS-Leaks)
+- [W3C: Fetch Metadata Request Headers](https://www.w3.org/TR/fetch-metadata/)

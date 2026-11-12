@@ -18,13 +18,15 @@ Any security questions presented to users to reset forgotten passwords must meet
 |----------------|-------------|
 | Memorable | The user must be able to recall the answer to the question, potentially years after creating their account. |
 | Consistent | The answer to the question must not change over time. |
-| Applicable | The user must be able to answer the question.
+| Applicable | The user must be able to answer the question. |
 | Confidential | The answer to the question must be hard for an attacker to obtain. |
 | Specific | The answer should be clear to the user. |
 
 ### Types of Security Questions
 
+<!-- textlint-disable terminology -->
 Security questions fall into two main types. With *user defined* security questions, the user must choose a question from a list, and provide an answer to the question. Common examples are "What is your favourite colour?" or "What was your first car?"
+<!-- textlint-enable terminology -->
 
 These are easy for applications to implement, as the additional information required is provided by the user when they first create their account. However, users will often choose weak or easily discovered answers to these questions.
 
@@ -43,8 +45,9 @@ Any questions that do not have all of the characteristics discussed above should
 | What is your favourite movie? | Likely to change over time. |
 | What is your favourite cricket team? | Not applicable to most users. |
 | What is the make and model of your first car? | Fairly small range of likely answers. |
+| What is your nickname? | This could be guessed by glancing through social media posts. |
 
-Additionally, the context of the application must be considered when deciding whether questions are good or bad. For example, a question such as "What was your maths teacher's surname in your 8th year of school?" would be very easy to guess if it was using in a virtual learning environment for your school (as other students probably know this information), but would be much stronger for an online gaming website.
+Additionally, the context of the application must be considered when deciding whether questions are good or bad. For example, a question such as "What was your maths teacher's surname in your 8th year of school?" would be very easy to guess if it was used in a virtual learning environment for your school (as other students probably know this information), but would be much stronger for an online gaming website.
 
 #### Good Questions
 
@@ -59,7 +62,7 @@ The following list provides some examples of good questions:
 - What was the name of your first stuffed toy?
 - What was your driving instructor's first name?
 
-Much like passwords, there is a risk that users will re-use recovery questions between different sites, which could expose the users if the other site is compromised. As such, there are benefits to having unique security questions that are unlikely to be shared between sites. An easy way to achieve this is to create more targeted questions based on the type of application. For example, on a share dealing platform, financial related questions such as "What is the first company you owned shares in?" could be used.
+Much like passwords, there is a risk that users will re-use recovery questions between different sites, which could expose the users if the other site is compromised. As such, there are benefits to having unique security questions that are unlikely to be shared between sites. An easy way to achieve this is to create more targeted questions based on the type of application. For example, on a share dealing platform, finance-related questions such as "What is the first company you owned shares in?" could be used.
 
 #### Allowing Users to Write Their Own Questions
 
@@ -69,9 +72,9 @@ As such, it is generally best not to allow users to write their own questions.
 
 #### Restricting Answers
 
-Enforcing a minimum length for answers can prevent users from entering strings such as "a" or "123" for their answers. However, depending on the questions asked, it could also prevent users from being able to correctly answer the question. For example, asking for a first name or surname could result in a two letter answer such as "Li", and a colour-based question could be four letters such as "blue".
+Enforcing a minimum length for answers can prevent users from entering strings such as "a" or "123" for their answers. However, depending on the questions asked, it could also prevent users from being able to correctly answer the question. For example, asking for a first name or surname could result in a two letter answer such as "Li", and a color-based question could be four letters such as "blue".
 
-Answers should also be checked against a block list, including:
+Answers should also be checked against a denylist, including:
 
 - The username or email address.
 - The user's current password.
@@ -79,11 +82,11 @@ Answers should also be checked against a block list, including:
 
 #### Renewing Security Questions
 
-If the security questions are not used as part of the main authentication process, then consider periodically prompting the user to review their security questions and verify that they still know the answers. This should give them a chance to update any answers that may have changed (although ideally this shouldn't happen with good questions), and increases the likelihood that they will remember them if they ever need to recover their account.
+If the security questions are not used as part of the main authentication process, then consider periodically (such as when they are changing their passwords after expiration) prompting the user to review their security questions and verify that they still know the answers. This should give them a chance to update any answers that may have changed (although ideally this shouldn't happen with good questions), and increases the likelihood that they will remember them if they ever need to recover their account.
 
 ### System Defined Security Questions
 
-System defined security questions are based on information that is already known about the user. The users' personal details are often used, including the full name, address and date of birth. However these can easily be obtained by an attacker from social media, and as such provide a very weak level of authentication.
+System defined security questions are based on information that is already known about the user. The users' personal details are often used, including the full name, address and date of birth. However these can easily be obtained by an attacker from social media, and as such provide a very weak form of authentication.
 
 The questions that can be used will vary hugely depending on the application, and how much information is already held about the user. When deciding which bits of information may be usable for security questions, the following areas should be considered:
 
@@ -95,7 +98,7 @@ The questions that can be used will vary hugely depending on the application, an
 
 ### When to Use Security Questions
 
-Applications should generally use a password along with a second authentication factor (such as an OTP code) to authenticate users. The combination of a password and security questions **does not constitute MFA**, as both factors as the same (i.e. something you know)..
+Applications should generally use a password along with a second authentication factor (such as an OTP code) to authenticate users. The combination of a password and security questions **does not constitute MFA**, as both factors are the same (i.e. something you know)..
 
 **Security questions should never be relied upon as the sole mechanism to authenticate a user**. However, they can provide a useful additional layer of security when other stronger factors are not available. Common cases where they would be used include:
 
@@ -132,7 +135,7 @@ The answers to security questions may contain personal information about the use
 
 #### Comparing Answers
 
-Comparing the answers provided by the user with the stored answer in a case insensitive manner makes it much easier for the user. The simplest way to do this is to convert the answer to lowercase before hashing the answer to store it, and then lowercase the user-provided answer before comparing them.
+Comparing the answers provided by the user with the stored answer in a case-insensitive manner makes it much easier for the user. The simplest way to do this is to convert the answer to lowercase before hashing the answer to store it, and then lowercase the user-provided answer before comparing them.
 
 It is also beneficial to give the user some indication of the format that they should use to enter answers. This could be done through input validation, or simply by recommending that the user enters their details in a specific format. For example, when asking for a date, indicating that the format should be "DD/MM/YYYY" will mean that the user doesn't have to try and guess what format they entered when registering.
 
@@ -145,3 +148,8 @@ When the user updates the answers to their security questions, this should be tr
 When security questions are used, the user can either be asked a single question, or can be asked multiple questions at the same time. This provides a greater level of assurance, especially if the questions are diverse, as an attacker would need to obtain more information about the target user. A mixture of user-defined and system-defined questions can be very effective for this.
 
 If the user is asked a single question out of a bank of possible questions, then this question **should not** be changed until the user has answered it correctly. If the attacker is allowed to try answering all of the different security questions, this greatly increases the chance that they will be able to guess or obtain the answer to one of them.
+
+## References
+
+- [Google Research: Secrets, Lies, and Account Recovery](https://research.google/pubs/pub43783/)
+- [NIST SP 800-63B-4: Authentication and Authenticator Management](https://pages.nist.gov/800-63-4/sp800-63b.html)

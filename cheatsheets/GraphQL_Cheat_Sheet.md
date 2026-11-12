@@ -13,16 +13,18 @@ This Cheat Sheet provides guidance on the various areas that need to be consider
 
 ## Common Attacks
 
-- [Injection](https://github.com/OWASP/API-Security/blob/master/2019/en/src/0xa8-injection.md) - this usually includes but is not limited to:
+- [Injection](https://github.com/OWASP/API-Security/blob/master/editions/2019/en/0xa8-injection.md) - this usually includes but is not limited to:
     - [SQL](https://owasp.org/www-community/attacks/SQL_Injection) and [NoSQL](https://www.netsparker.com/blog/web-security/what-is-nosql-injection/) injection
     - [OS Command injection](https://owasp.org/www-community/attacks/Command_Injection)
     - [SSRF](https://portswigger.net/web-security/ssrf) and [CRLF](https://owasp.org/www-community/vulnerabilities/CRLF_Injection) [injection](https://www.acunetix.com/websitesecurity/crlf-injection/)/[Request](https://portswigger.net/web-security/request-smuggling) [Smuggling](https://www.pentestpartners.com/security-blog/http-request-smuggling-a-how-to/)
 - [DoS](https://owasp.org/www-community/attacks/Denial_of_Service) ([Denial of Service](https://www.cloudflare.com/learning/ddos/glossary/denial-of-service/))
-- Abuse of broken authorization: either [improper](https://github.com/OWASP/API-Security/blob/master/2019/en/src/0xa1-broken-object-level-authorization.md) or [excessive](https://github.com/OWASP/API-Security/blob/master/2019/en/src/0xa3-excessive-data-exposure.md) access, including [IDOR](https://portswigger.net/web-security/access-control/idor)
+- Abuse of broken authorization: either [improper](https://github.com/OWASP/API-Security/blob/master/editions/2019/en/0xa1-broken-object-level-authorization.md) or [excessive](https://github.com/OWASP/API-Security/blob/master/editions/2019/en/0xa3-excessive-data-exposure.md) access, including [IDOR](https://portswigger.net/web-security/access-control/idor)
 - Batching Attacks, a GraphQL-specific method of brute force attack
 - Abuse of insecure default configurations
 
 ## Best Practices and Recommendations
+
+For the original security analysis, see [Doyensec's GraphQL security overview](https://blog.doyensec.com/2018/05/17/graphql-security-overview.html).
 
 ### Input Validation
 
@@ -32,11 +34,11 @@ See the OWASP Cheat Sheets on [Input Validation](Input_Validation_Cheat_Sheet.md
 
 #### General Practices
 
-Validate all incoming data to only allow valid values (i.e. allow list).
+Validate all incoming data to only allow valid values (i.e. allowlist).
 
 - Use specific GraphQL [data types](https://graphql.org/learn/schema/#type-language) such as [scalars](https://graphql.org/learn/schema/#scalar-types) or [enums](https://graphql.org/learn/schema/#enumeration-types). Write custom GraphQL [validators](https://graphql.org/learn/validation/) for more complex validations. [Custom scalars](https://itnext.io/custom-scalars-in-graphql-9c26f43133f3) may also come in handy.
 - Define [schemas for mutations input](https://graphql.org/learn/schema/#input-types).
-- [List allowed characters](Input_Validation_Cheat_Sheet.md#allow-list-vs-block-list) - don't use a block list
+- [List allowed characters](Input_Validation_Cheat_Sheet.md#allowlist-vs-denylist) - don't use a denylist
     - The stricter the list of allowed characters the better. A lot of times a good starting point is only allowing alphanumeric, non-unicode characters because it will disallow many attacks.
 - To properly handle unicode input, use a [single internal character encoding](Input_Validation_Cheat_Sheet.md#validating-free-form-unicode-text)
 - Gracefully [reject invalid input](Error_Handling_Cheat_Sheet.md), being careful not to reveal excessive information about how the API and its validation works.
@@ -116,7 +118,7 @@ Adding timeouts can be a simple way to limit how many resources any single reque
 
 At the application level, timeouts can be added for queries and resolver functions. This option is usually more effective since the query/resolution can be stopped once the timeout is reached. GraphQL does not natively support query timeouts so custom code is required. See [this blog post](https://medium.com/workflowgen/graphql-query-timeout-and-complexity-management-fab4d7315d8d) for more about using timeouts with GraphQL or the two examples below.
 
-***JavaScript Timeout Example***
+_**JavaScript Timeout Example**_
 
 Code snippet from [this SO answer](https://stackoverflow.com/a/53277955/1200388):
 
@@ -134,7 +136,7 @@ request.incrementResolverCount =  function () {
   };
 ```
 
-***Java Timeout Example using [Instrumentation](https://www.graphql-java.com/documentation/instrumentation)***
+_**Java Timeout Example using [Instrumentation](https://www.graphql-java.com/documentation/instrumentation)**_
 
 ```java
 public class TimeoutInstrumentation extends SimpleInstrumentation {
@@ -151,7 +153,7 @@ public class TimeoutInstrumentation extends SimpleInstrumentation {
 }
 ```
 
-***Infrastructure Timeout***
+_**Infrastructure Timeout**_
 
 Another option to add a timeout that is usually easier is adding a timeout on an HTTP server ([Apache/httpd](https://httpd.apache.org/docs/2.4/mod/core.html#timeout), [nginx](http://nginx.org/en/docs/http/ngx_http_core_module.html#send_timeout)), reverse proxy, or load balancer. However, infrastructure timeouts are often inaccurate and can be bypassed more easily than application-level ones.
 
@@ -167,9 +169,9 @@ APIs using graphql-java can utilize the built-in [MaxQueryComplexityInstrumentat
 
 #### Rate Limiting
 
-Enforcing rate limiting on a per IP or user (for anonymous and unauthorized access) basis can help limit a single user's ability to spam requests to the service and impact performance. Ideally this can be done with a WAF, API gateway, or web server ([Nginx](https://www.nginx.com/blog/rate-limiting-nginx/), [Apache](https://httpd.apache.org/docs/2.4/mod/mod_ratelimit.html)/[HTTPD](https://github.com/jzdziarski/mod_evasive)) to reduce the effort of adding rate limiting.
+Limit incoming HTTP requests per client using a request-rate control, such as [Nginx's `limit_req` module](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html). Apache's [`mod_ratelimit`](https://httpd.apache.org/docs/2.4/mod/mod_ratelimit.html) limits the transfer bandwidth of each response; it does not limit incoming request counts or aggregate traffic per client.
 
-Or you could get somewhat complex with throttling and implement it in your code (non-trivial). See "Throttling" [here](https://www.howtographql.com/advanced/4-security/) for more about GraphQL-specific rate limiting.
+HTTP request counts alone do not account for expensive queries or multiple operations in one request. Apply [GraphQL rate limits in the business logic layer](https://graphql.org/learn/security/#rate-limiting), together with [query cost limits](#query-cost-analysis) and [batching limits](#mitigating-batching-attacks).
 
 #### Server-side Batching and Caching
 
@@ -187,8 +189,8 @@ However, containerization platforms tend to make this task much easier. See the 
 
 To ensure that a GraphQL API has proper access control, do the following:
 
-- Always validate that the requester is authorized to view or mutate/modify the data they are requesting. This can be done with [RBAC](Access_Control_Cheat_Sheet.md#role-based-access-control-rbac) or other access control mechanisms.
-    - This will prevent [IDOR](Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.md) issues, including both [BOLA](https://github.com/OWASP/API-Security/blob/master/2019/en/src/0xa1-broken-object-level-authorization.md) and [BFLA](https://github.com/OWASP/API-Security/blob/master/2019/en/src/0xa5-broken-function-level-authorization.md).
+- Always validate that the requester is authorized to view or mutate/modify the data they are requesting. This can be done with [RBAC](Authorization_Cheat_Sheet.md#prefer-attribute-and-relationship-based-access-control-over-rbac) or other access control mechanisms.
+    - This will prevent [IDOR](Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.md) issues, including both [BOLA](https://github.com/OWASP/API-Security/blob/master/editions/2019/en/0xa1-broken-object-level-authorization.md) and [BFLA](https://github.com/OWASP/API-Security/blob/master/editions/2019/en/0xa5-broken-function-level-authorization.md).
 - Enforce authorization checks on both edges and nodes (see example [bug report](https://hackerone.com/reports/489146) where nodes did not have authorization checks but edges did).
 - Use [Interfaces](https://graphql.org/learn/schema/#interfaces) and [Unions](https://graphql.org/learn/schema/#union-types) to create structured, hierarchical data types which can be used to return more or fewer object properties, according to requester permissions.
 - Query and Mutation [Resolvers](https://graphql.org/learn/execution/#root-fields-resolvers) can be used to perform access control validation, possibly using some RBAC middleware.
@@ -197,15 +199,19 @@ To ensure that a GraphQL API has proper access control, do the following:
 
 #### General Data Access
 
-It's commonplace for GraphQL requests to include one or more direct IDs of objects in order to fetch or modify them. For example, a request for a certain picture may include the ID that is actually the primary key in the database for that picture. As with any request, the server must verify that the caller has access to the object they are requesting. But sometimes developers make the mistake of assuming that possession of the object's ID means the caller should have access. Failure to verify the requester's access in this case is called [Broken Object Level Authentication](https://github.com/OWASP/API-Security/blob/master/2019/en/src/0xa1-broken-object-level-authorization.md), also known as [IDOR](Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.md).
+It's commonplace for GraphQL requests to include one or more direct IDs of objects in order to fetch or modify them. For example, a request for a certain picture may include the ID that is actually the primary key in the database for that picture. As with any request, the server must verify that the caller has access to the object they are requesting. But sometimes developers make the mistake of assuming that possession of the object's ID means the caller should have access. Failure to verify the requester's access in this case is called [Broken Object Level Authentication](https://github.com/OWASP/API-Security/blob/master/editions/2019/en/0xa1-broken-object-level-authorization.md), also known as [IDOR](Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.md).
 
 It's possible for a GraphQL API to support access to objects using their ID even if that is not intended. Sometimes there are `node` or `nodes` or both fields in a query object, and these can be used to access objects directly by `ID`. You can check whether your schema has these fields by running this on the command-line (assuming that `schema.json` contains your GraphQL schema): `cat schema.json | jq ".data.__schema.types[] | select(.name==\"Query\") | .fields[] | .name" | grep node`. Removing these fields from the schema should disable the functionality, but you should always apply proper authorization checks to verify the caller has access to the object they are requesting.
 
 #### Query Access (Data Fetching)
 
+[Detectify's New Relic disclosure](https://labs.detectify.com/crowdsource-community/graphql-abuse-bypass-account-level-permissions-through-parameter-smuggling/) illustrates why field access must respect account permissions.
+
 As part of a GraphQL API there will be various data fields that can be returned. One thing to consider is if you want different levels of access around these fields. For example, you may only want certain consumers to be able to fetch certain data fields rather than allowing all consumers to be able to retrieve all available fields. This can be done by adding a check in the code to ensure that the requester should be able to read a field they are trying to fetch.
 
 #### Mutation Access (Data Manipulation)
+
+For an original case study, see [Pen Test Partners' WordPress GraphQL disclosure](https://www.pentestpartners.com/security-blog/pwning-wordpress-graphql/).
 
 GraphQL supports mutation, or manipulation of data, in addition to its most common use case of data fetching. If an API implements/allows mutation then there may need to be access controls put in place to restrict which consumers, if any, can modify data through the API. Setups that require mutation access control would include APIs where only read access is intended for requesters or where only certain parties should be able to modify certain fields.
 
@@ -287,7 +293,7 @@ For internal API, the easiest approach is to just disable introspection system-w
 
 Keep in mind that even if introspection is disabled, attackers can still guess fields by brute forcing them. Furthermore, GraphQL has a built-in feature to return a hint when a field name that the requester provides is similar (but incorrect) to an existing field (_e.g._ request has `usr` and the response will ask `Did you mean "user?"`). You should consider disabling this feature if you have disabled the introspection, to decrease the exposure, but not all implementations of GraphQL support doing so. [Shapeshifter](https://github.com/szski/shapeshifter) is one tool that [should be able to do this](https://www.youtube.com/watch?v=NPDp7GHmMa0&t=2580).
 
-***Disable Introspection - Java***
+_**Disable Introspection - Java**_
 
 ```Java
 GraphQLSchema schema = GraphQLSchema.newSchema()
@@ -296,41 +302,23 @@ GraphQLSchema schema = GraphQLSchema.newSchema()
     .build();
 ```
 
-***Disable Introspection & GraphiQL - JavaScript***
+_**Disable Introspection & GraphiQL - JavaScript**_
+
+For existing applications using the [deprecated `express-graphql` middleware](https://github.com/graphql/express-graphql#this-library-is-deprecated), this illustration assumes `NoIntrospection` is an imported introspection-denying validation rule. Use a maintained server implementation for new applications.
 
 ```javascript
 app.use('/graphql', graphqlHTTP({
   schema: MySessionAwareGraphQLSchema,
-+ validationRules: [NoIntrospection]
+  validationRules: [NoIntrospection],
   graphiql: process.env.NODE_ENV === 'development',
 }));
 ```
 
 #### Don't Return Excessive Errors
 
-GraphQL APIs in production shouldn't return stack traces or be in debug mode. Doing this is implementation specific, but using middleware is one popular way to have better control over errors the server returns. To [disable excessive errors](https://www.apollographql.com/docs/apollo-server/data/errors/) with Apollo Server, either pass `debug: false` to the Apollo Server constructor or set the `NODE_ENV` environment variable to 'production' or 'test'. However, if you would like to log the stack trace internally without returning it to the user see [here](https://www.apollographql.com/docs/apollo-server/data/errors/#masking-and-logging-errors) for how to mask and log errors so they are available to the developers but not callers of the API.
+GraphQL APIs in production shouldn't return stack traces or be in debug mode. Doing this is implementation specific, but using middleware is one popular way to have better control over errors the server returns. To [omit stack traces](https://www.apollographql.com/docs/apollo-server/data/errors/) with Apollo Server, pass `includeStacktraceInErrorResponses: false` to its constructor. When this option is unspecified, `NODE_ENV=production` or `NODE_ENV=test` suppresses stack traces by default; error messages still require separate masking. However, if you would like to log the stack trace internally without returning it to the user see [here](https://www.apollographql.com/docs/apollo-server/data/errors/#masking-and-logging-errors) for how to mask and log errors so they are available to the developers but not callers of the API.
 
-## Other Resources
+## References
 
-### Tools
-
-- [InQL Scanner](https://github.com/doyensec/inql) - Security scanner for GraphQL. Particularly useful for generating queries and mutations automatically from given schema and them feeding them to scanner.
-- [GraphiQL](https://github.com/graphql/graphiql) - Schema/object exploration
-- [GraphQL Voyager](https://github.com/APIs-guru/graphql-voyager) - Schema/object exploration
-
-### GraphQL Security Best Practices + Documentation
-
-- [Protecting GraphQL APIs from security threats - blog post](https://medium.com/swlh/protecting-your-graphql-api-from-security-vulnerabilities-e8afdfa6fbe4)
-- [https://nordicapis.com/security-points-to-consider-before-implementing-graphql/](https://nordicapis.com/security-points-to-consider-before-implementing-graphql/)
-- [Limiting resource usage to prevent DoS (timeouts, throttling, complexity management, depth limiting, etc.)](https://developer.github.com/v4/guides/resource-limitations/)
-- [GraphQL Security Perspectives](https://www.abhaybhargav.com/from-the-trenches-diy-security-perspectives-of-graphql/)
-- [A developer's security perspective of GraphQL](https://planes.studio/blog/how-to-survive-a-penetration-test-as-a-graph-ql-developer)
-
-### More on GraphQL Attacks
-
-- [Some common GraphQL attacks + attacker mindset](https://blog.doyensec.com/2018/05/17/graphql-security-overview.html)
-- [Bypassing permissions by smuggling parameters](https://labs.detectify.com/2018/03/14/graphql-abuse/)
-- [Bug bounty writeup about GraphQL](https://medium.com/bugbountywriteup/graphql-voyager-as-a-tool-for-security-testing-86d3c634bcd9)
-- [Security talk about Abusing GraphQL](https://www.youtube.com/watch?v=NPDp7GHmMa0)
-- [Real](https://vulners.com/myhack58/MYHACK58:62201994269) [world](https://www.pentestpartners.com/security-blog/pwning-wordpress-graphql/) [attacks](https://hackerone.com/reports/419883) [against](https://vulners.com/hackerone/H1:435066) [GraphQL](https://www.jonbottarini.com/2018/01/02/abusing-internal-api-to-achieve-idor-in-new-relic/) [in the](https://about.gitlab.com/blog/2019/07/03/security-release-gitlab-12-dot-0-dot-3-released/#authorization-issues-in-graphql) past
-- [Attack examples against GraphQL](https://raz0r.name/articles/looting-graphql-endpoints-for-fun-and-profit/)
+- [GraphQL: Security](https://graphql.org/learn/security/)
+- [GraphQL: Authorization](https://graphql.org/learn/authorization/)

@@ -6,8 +6,6 @@ This *Cheatsheet* intends to provide security tips to developers building Larave
 
 The Laravel Framework provides in-built security features and is meant to be secure by default. However, it also provides additional flexibility for complex use cases. This means that developers unfamiliar with the inner workings of Laravel may fall into the trap of using complex features in a way that is not secure. This guide is meant to educate developers to avoid common pitfalls and develop Laravel applications in a secure manner.
 
-You may also refer the [Enlightn Security Documentation](https://www.laravel-enlightn.com/docs/security/), which highlights common vulnerabilities and good practices on securing Laravel applications.
-
 ## The Basics
 
 - Make sure your app is not in debug mode while in production. To turn off debug mode, set your `APP_DEBUG` environment variable to `false`:
@@ -26,7 +24,7 @@ php artisan key:generate
 
 - Set safe file and directory permissions on your Laravel application. In general, all Laravel directories should be setup with a max permission level of `775` and non-executable files with a max permission level of `664`. Executable files such as Artisan or deployment scripts should be provided with a max permission level of `775`.
 
-- Make sure your application does not have vulnerable dependencies. You can check this using the [Enlightn Security Checker](https://github.com/enlightn/security-checker).
+- Make sure your application does not have vulnerable dependencies.
 
 ## Cookie Security and Session Management
 
@@ -49,13 +47,13 @@ protected $middlewareGroups = [
 ];
 ```
 
-- Enable the `HttpOnly` attribute on your session cookies via your `config/session.php` file, so that your session cookies are inaccessible from Javascript:
+- Enable the `HttpOnly` attribute on your session cookies via your `config/session.php` file, so that your session cookies are inaccessible from JavaScript:
 
 ```php
 'http_only' => true,
 ```
 
-- Unless you are using sub-domain route registrations in your Laravel application, it is recommended to set the cookie `domain` attribute to null so that only the same origin (excluding subdomains) can set the cookie. This can be configured in your `config/session.php` file:
+- Unless cookies must be shared with subdomains, set `domain` to `null` in `config/session.php` to omit the Domain attribute. This restricts [where the browser sends that cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie#domaindomain-value) to the setting host; it does not prevent sibling subdomains from setting same-name parent-domain cookies. For stronger protection against these cookie collisions, use a [`__Host-` session cookie](Session_Management_Cheat_Sheet.md#cookie-name-prefixes) with `Secure`, `Path=/`, and no Domain attribute on supporting browsers:
 
 ```php
 'domain' => null,
@@ -255,7 +253,7 @@ Since the column name is dictated by user input, it is similar to column name SQ
 
 [XSS attacks](https://owasp.org/www-community/attacks/xss/) are injection attacks where malicious scripts (such as JavaScript code snippets) are injected into trusted websites.
 
-Laravel's [Blade templating engine](https://laravel.com/docs/blade) has echo statements `{{ }}` that automatically escape variables using the `htmlspecialchars` PHP function to protect against XSS attacks.
+Laravel's [Blade echo statements](https://laravel.com/framework/docs/blade#displaying-data) `{{ }}` HTML-escape ordinary string values using `htmlspecialchars`. This is appropriate for HTML text and quoted ordinary text attributes, but does not validate URL schemes or encode JavaScript or CSS contexts.
 
 Laravel also offers displaying unescaped data using the unescaped syntax `{!! !!}`. This must not be used on any untrusted data, otherwise your application will be subject to an XSS attack.
 
@@ -265,13 +263,13 @@ For instance, if you have something like this in any of your Blade templates, it
 {!! request()->input('somedata') !!}
 ```
 
-This, however, is safe to do:
+For example, render untrusted text inside an ordinary HTML element:
 
 ```blade
-{{ request()->input('somedata') }}
+<span>{{ request()->input('somedata') }}</span>
 ```
 
-For other information on XSS prevention that is not specific to Laravel, you may refer the [Cross Site Scripting Prevention Cheatsheet](Cross_Site_Scripting_Prevention_Cheat_Sheet.md).
+For data embedded in JavaScript, follow Laravel's [`Js::from` guidance](https://laravel.com/framework/docs/blade#rendering-json). For URLs, CSS, and other output contexts, follow the [Cross Site Scripting Prevention Cheat Sheet](Cross_Site_Scripting_Prevention_Cheat_Sheet.md).
 
 ## Unrestricted File Uploads
 
@@ -279,11 +277,11 @@ Unrestricted file upload attacks entail attackers uploading malicious files to c
 
 ### Always Validate File Type and Size
 
-Always validate the file type (extension or MIME type) and file size to avoid storage DOS attacks and remote code execution:
+Validate allowed file types and impose a maximum file size as one layer of protection. This illustrative rule uses [`max`](https://laravel.com/framework/docs/12.x/validation#rule-max) to cap the file size rather than requiring an exact size:
 
 ```php
 $request->validate([
-    'photo' => 'file|size:100|mimes:jpg,bmp,png'
+    'photo' => 'file|max:100|mimes:jpg,bmp,png'
 ]);
 ```
 
@@ -291,7 +289,7 @@ Storage DOS attacks exploit missing file size validations and upload massive fil
 
 Remote code execution attacks entail first, uploading malicious executable files (such as PHP files) and then, triggering their malicious code by visiting the file URL (if public).
 
-Both these attacks can be avoided by simple file validations as mentioned above.
+These validations alone do not prevent either attack. Laravel's [`mimes` rule](https://laravel.com/framework/docs/12.x/validation#rule-mimes) infers type from content; it does not validate the user-supplied extension or make the file safe to execute. Generate stored filenames, keep uploads outside the webroot or on a separate host, and ensure uploaded files cannot be executed by the server. Bound aggregate storage and upload frequency as well as individual file size. Follow the [File Upload Cheat Sheet](File_Upload_Cheat_Sheet.md#file-upload-protection) for the remaining controls.
 
 ### Do Not Rely On User Input To Dictate Filenames or Path
 
@@ -412,7 +410,9 @@ public function verifyDomain(Request $request)
 }
 ```
 
-The above code is vulnerable as the user data is not escaped properly. To do so, you may use the `escapeshellcmd` and/or `escapeshellarg` PHP functions.
+Avoid invoking operating-system commands when a PHP library can perform the operation. If a process is required, keep the executable fixed and pass arguments separately using [Symfony Process with an argument array](https://symfony.com/doc/current/components/process.html#using-features-from-the-os-shell). Validate the domain against the expected format before passing it to `whois`; argument separation does not stop a value from being interpreted as a command option. See [Argument Injection](OS_Command_Injection_Defense_Cheat_Sheet.md#argument-injection) for this remaining risk.
+
+Do not use [`escapeshellcmd()`](https://www.php.net/manual/en/function.escapeshellcmd.php) as a substitute for separating arguments: it still permits extra arguments. If shell invocation is unavoidable, [`escapeshellarg()`](https://www.php.net/manual/en/function.escapeshellarg.php) escapes a single argument, but you must still validate its meaning to the called program.
 
 ## Other Injections
 
@@ -428,6 +428,77 @@ extract($request->all());
 
 In general, avoid passing any untrusted input data to these dangerous functions.
 
+## Rate Limiting
+
+Laravel provides built-in mechanisms to protect your routes from excessive requests and potential abuse.
+
+The two main ways to implement rate limiting are:
+
+1. **`throttle` middleware** – A built-in middleware that you can apply directly to routes or route groups.
+2. **`RateLimiter::for()`** – Allows you to define custom rate limiting rules with more flexibility.
+
+Below are the main ways to apply rate limiting effectively:
+
+### 1. Per Route
+
+Apply a limit directly to a single route using the `throttle` middleware:
+
+```php
+Route::get('/profile', function () {
+    return 'User profile';
+})->middleware('throttle:10,1'); // 10 requests per minute
+```
+
+### 2. Per Route Group
+
+Apply a limit to a group of routes:
+
+```php
+Route::middleware('throttle:20,1')->group(function () {
+    Route::get('/posts', fn () => 'Posts');
+    Route::get('/comments', fn () => 'Comments');
+});
+```
+
+### 3. Custom Rate Limiter
+
+Define a custom rate limiter in `RouteServiceProvider` using `RateLimiter::for()`:
+
+```php
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+
+RateLimiter::for('custom-limit', function ($request) {
+    return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+});
+```
+
+Apply the custom limiter to your routes:
+
+```php
+Route::middleware('throttle:custom-limit')->get('/dashboard', fn () => 'Dashboard');
+```
+
+### 4. Global API / Web Rate Limiting
+
+Laravel allows you to apply global rate limiting to entire route groups like `api` or `web` by including the `throttle` middleware in `Kernel.php` (note that the `api` group is rate-limited by default).
+
+```php
+protected $middlewareGroups = [
+    'api' => [
+        'throttle:60,1', // 60 requests per minute globally for API
+        // ...
+    ],
+
+    'web' => [
+        'throttle:30,1', // 30 requests per minute globally for web
+        // ...
+    ],
+];
+```
+
+For more details, see the official Laravel documentation on [rate limiting](https://laravel.com/docs/12.x/routing#rate-limiting).
+
 ## Security Headers
 
 You should consider adding the following security headers to your web server or Laravel application middleware:
@@ -439,17 +510,9 @@ You should consider adding the following security headers to your web server or 
 
 For more information, refer the [OWASP secure headers project](https://owasp.org/www-project-secure-headers/).
 
-## Tools
-
-You should consider using [Enlightn](https://www.laravel-enlightn.com/), a static and dynamic analysis tool for Laravel applications that has over 45 automated security checks to identify potential security issues. There is both an open source version and a commercial version of Enlightn available. Enlightn includes an extensive 45 page documentation on security vulnerabilities and a great way to learn more on Laravel security is to just review its [documentation](https://www.laravel-enlightn.com/docs/security/).
-
-You should also use the [Enlightn Security Checker](https://github.com/enlightn/security-checker) or the [Local PHP Security Checker](https://github.com/fabpot/local-php-security-checker). Both of them are open source packages, licensed under the MIT and AGPL licenses respectively, that scan your PHP dependencies for known vulnerabilities using the [Security Advisories Database](https://github.com/FriendsOfPHP/security-advisories).
-
 ## References
 
 - [Laravel Documentation on Authentication](https://laravel.com/docs/authentication)
 - [Laravel Documentation on Authorization](https://laravel.com/docs/authorization)
 - [Laravel Documentation on CSRF](https://laravel.com/docs/csrf)
 - [Laravel Documentation on Validation](https://laravel.com/docs/validation)
-- [Enlightn SAST and DAST Tool](https://www.laravel-enlightn.com/)
-- [Laravel Enlightn Security Documentation](https://www.laravel-enlightn.com/docs/security/)

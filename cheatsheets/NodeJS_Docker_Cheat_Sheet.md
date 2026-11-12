@@ -15,7 +15,7 @@ So, in fact, by specifying the following in your Dockerfile, you always build th
 
 The shortcomings of building based on the default `node` image are as follows:
 
-1. Docker image builds are inconsistent. Just like we’re using `lockfiles` to get a deterministic `npm install` behavior every time we install npm packages, we’d also like to get deterministic docker image builds. If we build the image from node—which effectively means the `node:latest` tag—then every build will pull a newly built Docker image of `node`. We don’t want to introduce this sort of non-deterministic behavior.
+1. Docker image builds are inconsistent. Just like we’re using `lockfiles` to get a deterministic [`npm ci`](https://cheatsheetseries.owasp.org/cheatsheets/NPM_Security_Cheat_Sheet.html#2-enforce-the-lockfile) behavior every time we install npm packages, we’d also like to get deterministic docker image builds. If we build the image from node—which effectively means the `node:latest` tag—then every build will pull a newly built Docker image of `node`. We don’t want to introduce this sort of non-deterministic behavior.
 2. The node Docker image is based on a full-fledged operating system, full of libraries and tools that you may or may not need to run your Node.js web application. This has two downsides. Firstly a bigger image means a bigger download size which, besides increasing the storage requirement, means more time to download and re-build the image. Secondly, it means you’re potentially introducing security vulnerabilities, that may exist in all of these libraries and tools, into the image.
 
 In fact, the `node` Docker image is quite big and includes hundreds of security vulnerabilities of different types and severities. If you’re using it, then by default your starting point is going to be a baseline of 642 security vulnerabilities, and hundreds of megabytes of image data that is downloaded on every pull and build.
@@ -52,7 +52,7 @@ Now we can update the Dockerfile for this Node.js Docker image as follows:
     FROM node@sha256:b2da3316acdc2bec442190a1fe10dc094e7ba4121d029cb32075ff59bb27390a
     WORKDIR /usr/src/app
     COPY . /usr/src/app
-    RUN npm install
+    RUN npm ci
     CMD "npm" "start"
 
 However, the Dockerfile above, only specifies the Node.js Docker image name without an image tag which creates ambiguity for which exact image tag is being used—it’s not readable, hard to maintain and doesn’t create a good developer experience.
@@ -62,27 +62,27 @@ Let’s fix it by updating the Dockerfile, providing the full base image tag for
     FROM node:lts-alpine@sha256:b2da3316acdc2bec442190a1fe10dc094e7ba4121d029cb32075ff59bb27390a
     WORKDIR /usr/src/app
     COPY . /usr/src/app
-    RUN npm install
+    RUN npm ci
     CMD "npm" "start"
 
 ## 2) Install only production dependencies in the Node.js Docker image
 
 The following Dockerfile directive installs all dependencies in the container, including `devDependencies`, which aren’t needed for a functional application to work. It adds an unneeded security risk from packages used as development dependencies, as well as inflating the image size unnecessarily.
 
-**`RUN npm install`**
+**`RUN npm ci`**
 
 Enforce deterministic builds with `npm ci`. This prevents surprises in a continuous integration (CI) flow because it halts if any deviations from the lockfile are made.
 
 In the case of building a Docker image for production we want to ensure that we only install production dependencies in a deterministic way, and this brings us to the following recommendation for the best practice for installing npm dependencies in a container image:
 
-**`RUN npm ci --only=production`**
+**`RUN npm ci --omit=dev`**
 
 The updated Dockerfile contents in this stage are as follows:
 
     FROM node:lts-alpine@sha256:b2da3316acdc2bec442190a1fe10dc094e7ba4121d029cb32075ff59bb27390a
     WORKDIR /usr/src/app
     COPY . /usr/src/app
-    RUN npm ci --only=production
+    RUN npm ci --omit=dev
     CMD "npm" "start"
 
 ## 3) Optimize Node.js tooling for production
@@ -91,17 +91,15 @@ When you build your Node.js Docker image for production, you want to ensure that
 
 This brings us to add the following Dockerfile directive:
 
-**`ENV NODE\_ENV production`**
+**`ENV NODE_ENV production`**
 
-At first glance, this looks redundant, since we already specified only production dependencies in the `npm install` phase—so why is this necessary?
+At first glance, this looks redundant, since we already specified only production dependencies in the `npm ci` phase—so why is this necessary?
 
 Developers mostly associate the `NODE_ENV=production` environment variable setting with the installation of production-related dependencies, however, this setting also has other effects which we need to be aware of.
 
 Some frameworks and libraries may only turn on the optimized configuration that is suited to production if that `NODE_ENV` environment variable is set to `production`. Putting aside our opinion on whether this is a good or bad practice for frameworks to take, it is important to know this.
 
 As an example, the [Express documentation](https://expressjs.com/en/advanced/best-practice-performance.html#set-node_env-to-production) outlines the importance of setting this environment variable for enabling performance and security related optimizations:
-
-![Express documentation screenshot](https://lh3.googleusercontent.com/idNDKUUyML-rRpnNYmOo4eNBimq-u343401spkAdKWWKjNt0c_xux2Aw1W2r64qWGEcvxfQRkosPcO339g5DzQk0snm1nr6MupSPNB_zAtGgLsr3lp1L-tia4KgHwvOXMW1jT0J-)
 
 The performance impact of the `NODE_ENV` variable could be very significant.
 
@@ -113,7 +111,7 @@ The updated Dockerfile should now read as follows with the `NODE_ENV` environmen
     ENV NODE_ENV production
     WORKDIR /usr/src/app
     COPY . /usr/src/app
-    RUN npm ci --only=production
+    RUN npm ci --omit=dev
     CMD "npm" "start"
 
 ## 4) Don’t run containers as root
@@ -137,7 +135,7 @@ The complete and proper way of dropping privileges is as follows, also showing o
     ENV NODE_ENV production
     WORKDIR /usr/src/app
     COPY --chown=node:node . /usr/src/app
-    RUN npm ci --only=production
+    RUN npm ci --omit=dev
     USER node
     CMD "npm" "start"
 
@@ -152,7 +150,7 @@ One of the most common mistakes I see with blogs and articles about containerizi
 
 Let’s dig in! I’ll walk you through the differences between them and why they’re all patterns to avoid.
 
-The following concerns are key in order to understanding the context for properly running and terminating Node.js Docker applications:
+The following concerns are key to understanding the context for properly running and terminating Node.js Docker applications:
 
 1. An orchestration engine, such as Docker Swarm, Kubernetes, or even just Docker engine itself, needs a way to send signals to the process in the container. Mostly, these are signals to terminate an application, such as `SIGTERM` and `SIGKILL`.
 2. The process may run indirectly, and if that happens then it’s not always guaranteed that it will receive these signals.
@@ -173,7 +171,7 @@ Make sure that in your Node.js application you set an event handler for the `SIG
 
 Then run the container, and once it’s up specifically send it the `SIGHUP` signal using the `docker` CLI and the special `--signal` command-line flag:
 
-**`$ docker kill --signal=SIGHUP elastic\_archimedes`**
+**`$ docker kill --signal=SIGHUP elastic_archimedes`**
 
 Nothing happened, right? That’s because the npm client doesn’t forward any signals to the node process that it spawned.
 
@@ -184,7 +182,7 @@ The other caveat has to do with the different ways in which way you can specify 
 
 Based on that knowledge, we want to improve our Dockerfile process execution directive as follows:
 
-**`CMD \["node", "server.js"\]`**
+**`CMD ["node", "server.js"]`**
 
 We are now invoking the node process directly, ensuring that it receives all of the signals sent to it, without it being wrapped in a shell interpreter.
 
@@ -192,9 +190,11 @@ However, this introduces another pitfall.
 
 When processes run as PID 1 they effectively take on some of the responsibilities of an init system, which is typically responsible for initializing an operating system and processes. The kernel treats PID 1 in a different way than it treats other process identifiers. This special treatment from the kernel means that the handling of a `SIGTERM` signal to a running process won’t invoke a default fallback behavior of killing the process if the process doesn’t already set a handler for it.
 
+<!-- textlint-disable terminology -->
 To [quote the Node.js Docker working group recommendation](https://github.com/nodejs/docker-node/blob/master/docs/BestPractices.md#handling-kernel-signals) on this:  “Node.js was not designed to run as PID 1 which leads to unexpected behaviour when running inside of Docker. For example, a Node.js process running as PID 1 will not respond to SIGINT (CTRL-C) and similar signals”.
+<!-- textlint-enable terminology -->
 
-The way to go about it then is to use a tool that will act like an init process, in that it is invoked with PID 1, then spawns our Node.js application as another process whilst ensuring that all signals are proxied to that Node.js process. If possible, we’d like a small as possible tooling footprint for doing so to not risk having security vulnerabilities added to our container image.
+The way to go about it then is to use a tool that will act like an init process, in that it is invoked with PID 1, then spawns our Node.js application as another process while ensuring that all signals are proxied to that Node.js process. If possible, we’d like a small as possible tooling footprint for doing so to not risk having security vulnerabilities added to our container image.
 
 One such tool is [dumb-init](https://engineeringblog.yelp.com/2016/01/dumb-init-an-init-for-docker.html) which is statically linked and has a small footprint. Here’s how we’ll set it up:
 
@@ -208,7 +208,7 @@ This brings us to the following up to date Dockerfile. You’ll notice that we p
     ENV NODE_ENV production
     WORKDIR /usr/src/app
     COPY --chown=node:node . .
-    RUN npm ci --only=production
+    RUN npm ci --omit=dev
     USER node
     CMD ["dumb-init", "node", "server.js"]
 
@@ -254,7 +254,7 @@ To provide a better experience, we can do the following:
 2. The handler waits for clean up operations like database connections, ongoing HTTP requests and others.
 3. The handler then terminates the Node.js process.
 
-Specifically with Fastify, we can have our handler call on [fastify.close()](https://www.fastify.io/docs/latest/Server/) which returns a promise that we will await, and Fastify will also take care to respond to every new connection with the HTTP status code 503 to signal that the application is unavailable.
+Specifically with Fastify, we can have our handler call on [fastify.close()](https://fastify.dev/docs/latest/Reference/Server/#close) which returns a promise that we will await, and Fastify will also take care to respond to every new connection with the HTTP status code 503 to signal that the application is unavailable.
 
 Let’s add our event handler:
 
@@ -273,7 +273,7 @@ Admittedly, this is more of a generic web application concern than Dockerfile re
 
 ## 7) Find and fix security vulnerabilities in your Node.js docker image
 
-See [Docker Security Cheat Sheet - Use static analysis tools](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html#rule-9-use-static-analysis-tools)
+See [Docker Security Cheat Sheet - Use static analysis tools](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html#rule-9-integrate-container-scanning-tools-into-your-cicd-pipeline)
 
 ## 8) Use multi-stage builds
 
@@ -293,22 +293,22 @@ Here’s an example for what I’m talking about:
     ENV NPM_TOKEN 1234
     WORKDIR /usr/src/app
     COPY --chown=node:node . .
-    #RUN npm ci --only=production
+    #RUN npm ci --omit=dev
     RUN echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc && \
-       npm ci --only=production
+       npm ci --omit=dev
     USER node
     CMD ["dumb-init", "node", "server.js"]
 
 Doing this, however, leaves the `.npmrc` file with the secret npm token inside the Docker image. You could attempt to improve it by deleting it afterwards, like this:
 
     RUN echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc && \
-       npm ci --only=production
+       npm ci --omit=dev
     RUN rm -rf .npmrc
 
 However, now the `.npmrc` file is available in a different layer of the Docker image. If this Docker image is public, or someone is able to access it somehow, then your token is compromised. A better improvement would be as follows:
 
     RUN echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc && \
-       npm ci --only=production; \
+       npm ci --omit=dev; \
        rm -rf .npmrc
 
 The problem now is that the Dockerfile itself needs to be treated as a secret asset, because it contains the secret npm token inside it.
@@ -317,12 +317,12 @@ Luckily, Docker supports a way to pass arguments into the build process:
 
     ARG NPM_TOKEN
     RUN echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc && \
-       npm ci --only=production; \
+       npm ci --omit=dev; \
        rm -rf .npmrc
 
 And then we build it as follows:
 
-**`$ docker build . -t nodejs-tutorial --build-arg NPM\_TOKEN=1234`**
+**`$ docker build . -t nodejs-tutorial --build-arg NPM_TOKEN=1234`**
 
 I know you were thinking that we’re all done at this point but, sorry to disappoint 🙂
 
@@ -357,12 +357,12 @@ The second Docker image, representing the second stage of the Docker build, will
 Here is the update to our Dockerfile that represents our progress so far, but separated into two stages:
 
     # --------------> The build image
-    FROM node:latest AS build
+    FROM node:lts-alpine AS build
     ARG NPM_TOKEN
     WORKDIR /usr/src/app
     COPY package*.json /usr/src/app/
     RUN echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc && \
-       npm ci --only=production && \
+       npm ci --omit=dev && \
        rm -f .npmrc
      
     # --------------> The production image
@@ -375,7 +375,7 @@ Here is the update to our Dockerfile that represents our progress so far, but se
     COPY --chown=node:node . /usr/src/app
     CMD ["dumb-init", "node", "server.js"]
 
-As you can see, I chose a bigger image for the `build` stage because I might need tooling like `gcc` (the GNU Compiler Collection) to compile native npm packages, or for other needs.
+As you can see, the `build` stage is where tooling like `gcc` (the GNU Compiler Collection) belongs if you need to compile native npm packages, or for other needs. Only `node_modules/` is copied out of it, so that tooling never reaches the production image.
 
 In the second stage, there’s a special notation for the `COPY` directive that copies the `node_modules/` folder from the build Docker image into this new production base image.
 
@@ -399,7 +399,7 @@ As you can see, the `node_modules/` is actually quite important to skip because 
     FROM node@sha256:b2da3316acdc2bec442190a1fe10dc094e7ba4121d029cb32075ff59bb27390a
     WORKDIR /usr/src/app
     COPY . /usr/src/app
-    RUN npm install
+    RUN npm ci
     CMD "npm" "start"
 
 In fact, it’s even more important to have a `.dockerignore` file when you are practicing multi-stage Docker builds. To refresh your memory on how the 2nd stage Docker build looks like:
@@ -434,7 +434,7 @@ This means that it makes sense to have the `.npmrc` file available to the `build
 
 One way to mitigate this `.dockerignore` caveat is to mount a local file system that will be available for the build stage, but there’s a better way.
 
-Docker supports a relatively new capability referred to as Docker secrets, and is a natural fit for the case we need with `.npmrc`. Here is how it works:
+Docker BuildKit supports [build secrets](https://docs.docker.com/build/building/secrets/), which are a natural fit for the case we need with `.npmrc`. Here is how it works:
 
 - When we run the `docker build` command we will specify command-line arguments that define a new secret ID and reference a file as the source of the secret.
 - In the Dockerfile, we will add flags to the `RUN` directive to install the production npm, which mounts the file referred by the secret ID into the target location—the local directory `.npmrc` file which is where we want it available.
@@ -454,10 +454,10 @@ Let’s see how all of it works together. First the updated `.dockerignore` file
 Then, the complete Dockerfile, with the updated RUN directive to install npm packages while specifying the `.npmrc` mount point:
 
     # --------------> The build image
-    FROM node:latest AS build
+    FROM node:lts-alpine AS build
     WORKDIR /usr/src/app
     COPY package*.json /usr/src/app/
-    RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc npm ci --only=production
+    RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc npm ci --omit=dev
      
     # --------------> The production image
     FROM node:lts-alpine
@@ -473,6 +473,11 @@ And finally, the command that builds the Node.js Docker image:
 
     docker build . -t nodejs-tutorial --secret id=npmrc,src=.npmrc
 
-**Note:** Secrets are a new feature in Docker and if you’re using an older version, you might need to enable it Buildkit as follows:
+**Note:** [BuildKit](https://docs.docker.com/build/buildkit/) is the default builder in Docker Desktop and in Docker Engine [23.0](https://docs.docker.com/engine/release-notes/23.0/) and later. On older Docker Engine versions, enable it explicitly:
 
-    DOCKER_BUILDKIT=1 docker build . -t nodejs-tutorial --build-arg NPM_TOKEN=1234 --secret id=npmrc,src=.npmrc
+    DOCKER_BUILDKIT=1 docker build . -t nodejs-tutorial --secret id=npmrc,src=.npmrc
+
+## References
+
+- [Node.js Docker: Best Practices](https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md)
+- [Docker: Build secrets](https://docs.docker.com/build/building/secrets/)

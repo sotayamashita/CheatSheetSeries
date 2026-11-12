@@ -2,22 +2,28 @@ name: Build website
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build website
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       CI: true
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
-      - name: Set up Python 3
-        uses: actions/setup-python@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: '3.9'
-      - name: Install Python dependencies
-        run: make install-python-requirements
+          persist-credentials: false
+      - name: Set up Python 3
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+
+      - name: Install system dependencies for lxml
+        run: sudo apt-get update && sudo apt-get install -y libxml2-dev libxslt1-dev
       - name: Build website
-        run: (cd scripts && bash Generate_Site_mkDocs.sh)
+        run: make generate-site
       - name: List generated files
         run: ls -lah generated/site/

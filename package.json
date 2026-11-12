@@ -3,19 +3,23 @@
   "version": "1.0.1",
   "description": "OWASP CSS Project",
   "main": "index.js",
-  "dependencies": {},
   "devDependencies": {
-    "markdownlint-cli": "^0.26.0",
-    "textlint": "^11.6.3",
+    "markdownlint-cli": "^0.50.0",
+    "parse5": "8.1.0",
+    "textlint": "^15.8.0",
     "textlint-filter-rule-comments": "^1.2.2",
-    "textlint-filter-rule-whitelist": "^2.0.0",
-    "textlint-rule-terminology": "^2.1.4"
+    "textlint-rule-terminology": "^5.2.12"
   },
   "scripts": {
-    "test": "npm run lint-markdown && npm run lint-terminology",
+    "test": "npm run lint-markdown && npm run lint-terminology && npm run test:link-check && npm run test:workflow-approvals",
+    "test:link-check": "node --test tests/link-check/http-checker.test.js tests/link-check/corpus.test.js tests/link-check/cli.test.js tests/link-check/workflow-diagnostics.test.js tests/link-check/policy.test.js",
     "lint-terminology": "textlint ./cheatsheets/",
-    "lint-markdown": "markdownlint ./cheatsheets/ --ignore node_modules",
-    "link-check": "find  cheatsheets -name \\*.md -exec markdown-link-check -c markdown-link-check-config.json 1> log 2> err {} \\; && if [ -e err ] && grep -q  \"ERROR:\" err ; then exit 113  ; else echo -e \"All good\"; fi"
+    "lint-terminology-fix": "textlint --fix ./cheatsheets/",
+    "lint-markdown": "markdownlint ./ -c .markdownlint.json --ignore node_modules --ignore cheatsheets_excluded",
+    "lint-markdown-fix": "markdownlint --fix ./ -c .markdownlint.json --ignore node_modules --ignore cheatsheets_excluded",
+    "link-check": "node scripts/Check_Markdown_Links.js",
+    "test:workflow-approvals": "node --test tests/pr-workflow-approvals.test.js",
+    "check-pr-approvals": "node scripts/Check_PR_Workflow_Approvals.js"
   },
   "repository": {
     "type": "git",
@@ -26,5 +30,16 @@
   "bugs": {
     "url": "https://github.com/OWASP/CheatSheetSeries/issues"
   },
-  "homepage": "https://github.com/OWASP/CheatSheetSeries#readme"
+  "homepage": "https://github.com/OWASP/CheatSheetSeries#readme",
+  "overrides": {
+    "markdownlint-cli": {
+      "js-yaml": "^5.4.2",
+      "smol-toml": "^1.9.0"
+    },
+    "micromark-extension-math": {
+      "katex": "^0.18.2"
+    },
+    "minimatch": "^11.0.6",
+    "glob": "^14.0.4"
+  }
 }

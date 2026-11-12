@@ -1,11 +1,11 @@
 # Welcome to the OWASP Cheat Sheet Series
 
-[![OWASP Flagship](https://img.shields.io/badge/owasp-flagship%20project-48A646.svg)](https://www.owasp.org/index.php/OWASP_Project_Inventory#tab=Flagship_Projects)
-[![Creative Commons License](https://licensebuttons.net/l/by-sa/4.0/88x31.png)](https://creativecommons.org/licenses/by-sa/4.0/ "CC BY-SA 4.0")
+[![OWASP Flagship](https://img.shields.io/badge/owasp-flagship%20project-48A646.svg)](https://owasp.org/projects/cheat-sheet-series)
+[![Creative Commons License](https://img.shields.io/github/license/OWASP/CheatSheetSeries)](https://creativecommons.org/licenses/by-sa/4.0/ "CC BY-SA 4.0")
 
-Welcome to the official repository for the Open Web Application Security Project® (OWASP) Cheat Sheet Series project. The project focuses on providing good security practices for builders in order to secure their applications.
+Welcome to the official repository for the Open Worldwide Application Security Project® (OWASP) Cheat Sheet Series project. The project focuses on providing good security practices for builders in order to secure their applications.
 
-In order to read the cheat sheets and **reference** them, use the project [official website](https://cheatsheetseries.owasp.org). The project details can be viewed on the [OWASP main website](https://owasp.org/www-project-cheat-sheets/) without the cheat sheets.
+In order to read the cheat sheets and **reference** them, use the project [official website](https://cheatsheetseries.owasp.org). The project details can be viewed on the [OWASP main website](https://owasp.org/projects/cheat-sheet-series) without the cheat sheets.
 
 :triangular_flag_on_post: Markdown files are the working sources and aren't intended to be referenced in any external documentation, books or websites.
 
@@ -15,11 +15,7 @@ In order to read the cheat sheets and **reference** them, use the project [offic
 
 - [Jim Manico](https://github.com/jmanico)
 - [Jakub Maćkowski](https://github.com/mackowski)
-
-### Core Team
-
-- [Kevin W. Wall](https://github.com/kwwall)
-- [Shlomo Zalman Heigh](https://github.com/szh)
+- [Gabriel Corona](https://github.com/randomstuff)
 
 ## Chat With Us
 
@@ -32,7 +28,7 @@ Feel free to ask questions, suggest ideas, or share your best recipes.
 
 ## Contributions, Feature Requests, and Feedback
 
-We are actively inviting new contributors! To start, please read the [contribution guide](CONTRIBUTING.md).
+We are actively inviting new contributors! To start, please read the [contribution guide](CONTRIBUTING.md) and our [How To Make A Cheatsheet guide](GUIDELINE.md).
 
 This project is only possible thanks to the work of many dedicated volunteers. Everyone is encouraged to help in ways large and small. Here are a few ways you can help:
 
@@ -44,14 +40,47 @@ This project is only possible thanks to the work of many dedicated volunteers. E
 
 This [link](https://cheatsheetseries.owasp.org/bundle.zip) allows you to download a build (ZIP archive) of the offline website.
 
-### Local build [![pyVersion3x](https://img.shields.io/badge/python-3.x-blue.svg)](https://www.python.org/downloads/)
+### Local Build [![pyVersion3x](https://img.shields.io/badge/python-3.x-blue.svg)](https://www.python.org/downloads/)
 
 The OWASP Cheat Sheet Series website can be built and tested locally by issuing the following commands:
 
 ```sh
-make install-python-requirements
 make generate-site
 make serve  # Binds port 8000
+```
+
+### Linting
+
+To check markdown and terminology:
+
+```sh
+npm run lint-markdown
+npm run lint-terminology
+```
+
+To auto-fix linting issues:
+
+```sh
+npm run lint-markdown-fix
+npm run lint-terminology-fix
+```
+
+### Container Build
+
+The OWASP Cheat Sheet Series website can be built and tested locally inside a container by issuing the following commands:
+
+#### Docker
+
+```sh
+docker build -t cheatsheetseries .
+docker run --name cheatsheetseries -p 8000:8000 cheatsheetseries
+```
+
+#### Podman
+
+```sh
+podman build -t cheatsheetseries .
+podman run --name cheatsheetseries -p 8000:8000 localhost/cheatsheetseries
 ```
 
 ## Contributors
@@ -67,4 +96,4 @@ A special thank you to the following people for their help provided during the m
 - [Elie Saad](https://github.com/ThunderSon): For valuable help in updating the OWASP Wiki links for all the migrated cheat sheets and for years of leadership and other project support.
 - [Jakub Maćkowski](https://github.com/mackowski): For valuable help in updating the OWASP Wiki links for all the migrated cheat sheets.
 
-Open Web Application Security Project and OWASP are registered trademarks of the OWASP Foundation, Inc.
+Open Worldwide Application Security Project and OWASP are registered trademarks of the OWASP Foundation, Inc.

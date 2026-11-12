@@ -4,7 +4,7 @@
 
 Network segmentation is the core of multi-layer defense in depth for modern services. Segmentation slow down an attacker if he cannot implement attacks such as:
 
-- SQL-injections, see [SQL Injection Prevention Cheat Sheet](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md);
+- SQL-injections, see [SQL Injection Prevention Cheat Sheet](SQL_Injection_Prevention_Cheat_Sheet.md);
 - compromise of workstations of employees with elevated privileges;
 - compromise of another server in the perimeter of the organization;
 - compromise of the target service through the compromise of the LDAP directory, DNS server, and other corporate services and sites published on the Internet.
@@ -45,9 +45,9 @@ Further, the schemes do not contain firewall icons so as not to overload the sch
 
 By default, developed information systems should consist of at least three components (**security zones**):
 
-1. [FRONTEND](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Network_Segmentation_Cheat_Sheet.md#FRONTEND);
-2. [MIDDLEWARE](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Network_Segmentation_Cheat_Sheet.md#MIDDLEWARE);
-3. [BACKEND](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Network_Segmentation_Cheat_Sheet.md#BACKEND).
+1. [FRONTEND](Network_Segmentation_Cheat_Sheet.md#frontend);
+2. [MIDDLEWARE](Network_Segmentation_Cheat_Sheet.md#middleware);
+3. [BACKEND](Network_Segmentation_Cheat_Sheet.md#backend).
 
 ### FRONTEND
 
@@ -128,7 +128,7 @@ As you can see, there is only one incoming access to each network, access is ope
 ## Network security policy
 
 The organization must define a "paper" policy that describes firewall rules and basic allowed network access.
-This policy is at least useful:
+This policy is at least useful for:
 
 - network administrators;
 - security representatives;
@@ -153,6 +153,7 @@ The network security policy may define, for example, the basic permissions allow
 It is important that in the event of a compromise of any information system, its logs are not subsequently modified by an attacker. To do this, you can do the following: copy the logs to a separate server, for example, using the syslog protocol, which does not allow an attacker to modify the logs, syslog only allows you to add new events to the logs.
 The network security policy for this activity looks like this:
 ![Logging](https://raw.githubusercontent.com/OWASP/CheatSheetSeries/master/assets/Network_Segmentation_Cheat_Sheet_logs.drawio.png)
+
 In this example, we are also talking about application logs that may contain security events, as well as potentially important events that may indicate an attack.
 
 #### Permissions for monitoring systems
@@ -163,3 +164,8 @@ Suppose a company uses Zabbix as an IT monitoring system. In this case, the poli
 ## Useful links
 
 - Full network segmentation cheat sheet by [sergiomarotco](https://github.com/sergiomarotco): [link](https://github.com/sergiomarotco/Network-segmentation-cheat-sheet).
+
+## References
+
+- [NIST SP 800-41 Rev. 1: Guidelines on Firewalls and Firewall Policy](https://csrc.nist.gov/pubs/sp/800/41/r1/final)
+- [NIST SP 800-215: Guide to a Secure Enterprise Network Landscape](https://csrc.nist.gov/pubs/sp/800/215/final)

@@ -71,15 +71,13 @@ Attacks like clickjacking and some variants of browser side-channel attacks (xs-
 
 Historically the `X-Frame-Options` header has been used for this, but it has been obsoleted by the `frame-ancestors` CSP directive.
 
-## Defense in Depth
+### Defense in Depth
 
-A strong CSP provides an effective second layer of protection against various types of vulnerabilities, especially XSS. Although CSP doesn't prevent web applications from *containing* vulnerabilities, it can make those vulnerabilities significantly more difficult for an attacker to exploit.
+A strong CSP provides an effective __second layer__ of protection against various types of vulnerabilities, especially XSS. Although CSP doesn't prevent web applications from *containing* vulnerabilities, it can make those vulnerabilities significantly more difficult for an attacker to exploit.
 
 Even on a fully static website, which does not accept any user input, a CSP can be used to enforce the use of [Subresource Integrity (SRI)](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity). This can help prevent malicious code from being loaded on the website if one of the third-party sites hosting JavaScript files (such as analytics scripts) is compromised.
 
-## CSP is not a substitute for secure development
-
-CSP **should not** be relied upon as the only defensive mechanism against XSS. You must still follow good development practices such as the ones described in [Cross-Site Scripting Prevention Cheat Sheet](Cross_Site_Scripting_Prevention_Cheat_Sheet.md), and then deploy CSP on top of that as a bonus security layer.
+With all that being said, CSP __should not__ be relied upon as the only defensive mechanism against XSS. You must still follow good development practices such as the ones described in [Cross-Site Scripting Prevention Cheat Sheet](Cross_Site_Scripting_Prevention_Cheat_Sheet.md), and then deploy CSP on top of that as a bonus security layer.
 
 ## Policy Delivery
 
@@ -95,6 +93,8 @@ Content-Security-Policy: ...
 
 Using a header is the preferred way and supports the full CSP feature set. Send it in all HTTP responses, not just the index page.
 
+This is a W3C Spec standard header. Supported by Firefox 23+, Chrome 25+ and Opera 19+
+
 ### 2. Content-Security-Policy-Report-Only Header
 
 Using the `Content-Security-Policy-Report-Only`, you can deliver a CSP that doesn't get enforced.
@@ -104,6 +104,8 @@ Content-Security-Policy-Report-Only: ...
 ```
 
 Still, violation reports are printed to the console and delivered to a violation endpoint if the `report-to` and `report-uri` directives are used.
+
+This is also a W3C Spec standard header. Supported by Firefox 23+, Chrome 25+ and Opera 19+, whereby the policy is non-blocking ("fail open") and a report is sent to the URL designated by the `report-uri` (or newer `report-to`) directive. This is often used as a precursor to utilizing CSP in blocking mode ("fail closed")
 
 Browsers fully support the ability of a site to use both `Content-Security-Policy` and `Content-Security-Policy-Report-Only` together, without any issues. This pattern can be used for example to run a strict `Report-Only` policy (to get many violation reports), while having a looser enforced policy (to avoid breaking legitimate site functionality).
 
@@ -119,17 +121,83 @@ In this case, you can still use CSP by specifying a `http-equiv` meta tag in the
 
 Almost everything is still supported, including full XSS defenses. However, you will not be able to use [framing protections](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors), [sandboxing](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/sandbox), or a [CSP violation logging endpoint](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-to).
 
-### HTTP Headers
+### WARNING
 
-The following are headers for CSP.
+__DO NOT__ use `X-Content-Security-Policy` or `X-WebKit-CSP`. Their implementations are obsolete (since Firefox 23, Chrome 25), limited, inconsistent, and incredibly buggy.
 
-- `Content-Security-Policy` : W3C Spec standard header. Supported by Firefox 23+, Chrome 25+ and Opera 19+
-- `Content-Security-Policy-Report-Only` : W3C Spec standard header. Supported by Firefox 23+, Chrome 25+ and Opera 19+, whereby the policy is non-blocking ("fail open") and a report is sent to the URL designated by the `report-uri` (or newer `report-to`) directive. This is often used as a precursor to utilizing CSP in blocking mode ("fail closed")
-- `DO NOT` use X-Content-Security-Policy or X-WebKit-CSP. Their implementations are obsolete (since Firefox 23, Chrome 25), limited, inconsistent, and incredibly buggy.
+## CSP Types (granular/allowlist based or strict)
 
-## CSP Directives
+For original research on allowlist weaknesses, see [CSP Is Dead, Long Live CSP!](https://research.google/pubs/csp-is-dead-long-live-csp-on-the-insecurity-of-whitelists-and-the-future-of-content-security-policy/).
 
-Multiple types of directives exist that allow the developer to control the flow of the policies granularly.
+The original mechanism for building a CSP involved creating allow-lists which would define the content and sources that were permitted in the context of the HTML page.
+
+However, current leading practice is to create a "Strict" CSP which is much easier to deploy and more secure as it is less likely to be bypassed.
+
+## Strict CSP
+
+A strict CSP can be created by using a limited number of the granular [Fetch Directives listed below](#fetch-directives) along with one of two mechanisms:
+
+- Nonce based
+- Hash based
+
+The `strict-dynamic` directive can optionally also be used to make it easier to implement a Strict CSP.
+
+The following sections will provide some basic guidance to these mechanisms but it is strongly recommended to follow Google's detailed and methodological instructions for creating a Strict CSP:
+
+__[Mitigate cross-site scripting (XSS) with a strict Content Security Policy (CSP)](https://web.dev/strict-csp/)__
+
+### Nonce based
+
+Nonces are unique one-time-use random values that you generate for each HTTP response, and add to the Content-Security-Policy header, like so:
+
+```js
+const nonce = uuid.v4();
+scriptSrc += ` 'nonce-${nonce}'`;
+```
+
+You would then pass this nonce to your view (using nonces requires a non-static HTML) and render script tags that look something like this:
+
+```html
+<script nonce="<%= nonce %>">
+    ...
+</script>
+```
+
+#### Warning
+
+__Don't__ create a middleware that replaces all script tags with "script nonce=..." because attacker-injected scripts will then get the nonces as well. You need an actual HTML templating engine to use nonces.
+
+### Hashes
+
+When inline scripts are required, the `script-src 'hash_algo-hash'` is another option for allowing only specific scripts to execute.
+
+```text
+Content-Security-Policy: script-src 'sha256-V2kaaafImTjn8RQTWZmF4IfGfQ7Qsqsw9GWaFjzFNPg='
+```
+
+To get the hash, look at Google Chrome developer tools for violations like this:
+
+> ❌ Refused to execute inline script because it violates the following Content Security Policy directive: "..." Either the 'unsafe-inline' keyword, a hash (__'sha256-V2kaaafImTjn8RQTWZmF4IfGfQ7Qsqsw9GWaFjzFNPg='__), or a nonce...
+
+You can also use this [hash generator](https://report-uri.com/home/hash). This is a great [example](https://csp.withgoogle.com/docs/faq.html#static-content) of using hashes.
+
+#### Note
+
+Using hashes can be a risky approach. If you change *anything* inside the script tag (even whitespace) by, e.g., formatting your code, the hash will be different, and the script won't render.
+
+### strict-dynamic
+
+The `strict-dynamic` directive can be used as part of a Strict CSP in combination with either hashes or nonces.
+
+If a script block which has either the correct hash or nonce is creating additional DOM elements and executing JS inside of them, `strict-dynamic` tells the browser to trust those elements as well without having to explicitly add nonces or hashes for each one.
+
+Note that while `strict-dynamic` is a CSP level 3 feature, CSP level 3 is very widely supported in common, modern browsers.
+
+For more details, check out [strict-dynamic usage](https://w3c.github.io/webappsec-csp/#strict-dynamic-usage).
+
+## Detailed CSP Directives
+
+Multiple types of directives exist that allow the developer to control the flow of the policies granularly. Note that creating a non-Strict policy that is too granular or permissive is likely to lead to bypasses and a loss of protection.
 
 ### Fetch Directives
 
@@ -143,7 +211,7 @@ Most fetch directives have a certain [fallback list specified in w3](https://www
 - `img-src` specifies the URLs that images can be loaded from.
 - `manifest-src` specifies the URLs that application manifests may be loaded from.
 - `media-src` specifies the URLs from which video, audio and text track resources can be loaded from.
-- `prefetch-src` specifies the URLs from which resources can be prefetched from.
+- `prefetch-src` was an experimental directive for prefetch/prerender resource URLs. It was __removed from the CSP Level 3 specification__ and is ignored by modern browsers — do not rely on it for defense. Constrain scripts, styles, and default fetches with the standard fetch directives instead.
 - `object-src` specifies the URLs from which plugins can be loaded from.
 - `script-src` specifies the locations from which a script can be executed from. It is a fallback directive for other script-like directives.
     - `script-src-elem` controls the location from which execution of script requests and blocks can occur.
@@ -158,10 +226,7 @@ Most fetch directives have a certain [fallback list specified in w3](https://www
 Document directives instruct the browser about the properties of the document to which the policies will apply to.
 
 - `base-uri` specifies the possible URLs that the `<base>` element can use.
-- `plugin-types` limits the types of resources that can be loaded into the document (*e.g.* application/pdf). 3 rules apply to the affected elements, `<embed>` and `<object>`:
-    - The element needs to explicitly declare its type.
-    - The element's type needs to match the declared type.
-    - The element's resource need to match the declared type.
+- `plugin-types` has been [removed from the CSP specification](https://bugs.webkit.org/show_bug.cgi?id=220724). Do not rely on it to enforce content types. Use `object-src 'none'` when embedded objects are unnecessary, as in the [strict policy examples](#strict-policy).
 - `sandbox` restricts a page's actions such as submitting forms.
     - Only applies when used with the request header `Content-Security-Policy`.
     - Not specifying a value for the directive activates all of the sandbox restrictions. `Content-Security-Policy: sandbox;`
@@ -169,25 +234,24 @@ Document directives instruct the browser about the properties of the document to
 
 ### Navigation Directives
 
-Navigation directives instruct the browser about the locations that the document can navigate to.
+Navigation directives instruct the browser about the locations that the document can navigate to or be embedded from.
 
-- `navigate-to` restricts the URLs which a document can navigate to by any mean ([not yet supported](https://caniuse.com/?search=navigate-to) by modern browsers in Jan 2021).
 - `form-action` restricts the URLs which the forms can submit to.
 - `frame-ancestors` restricts the URLs that can embed the requested resource inside of  `<frame>`, `<iframe>`, `<object>`, `<embed>`, or `<applet>` elements.
     - If this directive is specified in a `<meta>` tag, the directive is ignored.
-    - This directive doesn't fallback to `default-src` directive.
+    - This directive doesn't fallback to the `default-src` directive.
     - `X-Frame-Options` is rendered obsolete by this directive and is ignored by the user agents.
 
 ### Reporting Directives
 
 Reporting directives deliver violations of prevented behaviors to specified locations. These directives serve no purpose on their own and are dependent on other directives.
 
-- `report-to` which is a groupname defined in the header in a json formatted header value.
+- `report-to` (CSP Level 3, used together with the [Reporting API](https://developer.mozilla.org/en-US/docs/Web/API/Reporting_API)) is the __primary, current__ reporting directive. It references an endpoint name defined in the [Reporting-Endpoints response header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Reporting-Endpoints#syntax), which uses comma-separated `name="URL"` entries. The legacy `Report-To` header uses JSON instead.
     - [MDN report-to documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-to)
-- `report-uri` directive is deprecated by `report-to`, which is a URI that the reports are sent to.
-    - Goes by the format of: `Content-Security-Policy: report-uri https://example.com/csp-reports`
+- `report-uri` is __deprecated__ by CSP Level 3 in favor of `report-to`. It takes a URI that reports are sent to.
+    - Format: `Content-Security-Policy: report-uri https://example.com/csp-reports`
 
-In order to ensure backward compatibility, use the 2 directives in conjunction. Whenever a browser supports `report-to`, it will ignore `report-uri`. Otherwise, `report-uri` will be used.
+For backward compatibility, declare both directives in conjunction. Browsers that support `report-to` will use it and ignore `report-uri`; older browsers fall back to `report-uri`. Once support for legacy browsers is no longer required, `report-uri` can be removed.
 
 ### Special Directive Sources
 
@@ -197,64 +261,40 @@ In order to ensure backward compatibility, use the 2 directives in conjunction. 
 | 'self'           | Refers to the origin site with the same scheme and port number.             |
 | 'unsafe-inline'  | Allows the usage of inline scripts or styles.                               |
 | 'unsafe-eval'    | Allows the usage of eval in scripts.                                        |
-| 'strict-dynamic' | Informs the browser to trust scripts originating from a root trusted script.|
-
-*Note:* `strict-dynamic` is not a standalone directive and should be used in combination with other directive values, such as `nonce`, `hashes`, etc.
 
 To better understand how the directive sources work, check out the [source lists from w3c](https://w3c.github.io/webappsec-csp/#framework-directive-source-list).
 
-### Hashes
-
-When inline scripts are required, the `script-src 'hash_algo-hash'` is one option for allowing only specific scripts to execute.
-
-```text
-Content-Security-Policy: script-src 'sha256-V2kaaafImTjn8RQTWZmF4IfGfQ7Qsqsw9GWaFjzFNPg='
-```
-
-To get the hash, look at Google Chrome developer tools for violations like this:
-
-> ❌ Refused to execute inline script because it violates the following Content Security Policy directive: "..." Either the 'unsafe-inline' keyword, a hash (**'sha256-V2kaaafImTjn8RQTWZmF4IfGfQ7Qsqsw9GWaFjzFNPg='**), or a nonce...
-
-You can also use this [hash generator](https://report-uri.com/home/hash). This is a great [example](https://csp.withgoogle.com/docs/faq.html#static-content) of using hashes.
-
-#### Note
-
-Using hashes is generally not a very good approach. If you change *anything* inside the script tag (even whitespace) by, e.g., formatting your code, the hash will be different, and the script won't render.
-
-### Nonces
-
-Nonces are unique one-time-use random values that you generate for each HTTP response, and add to the Content-Security-Policy header, like so:
-
-```js
-const nonce = uuid.v4();
-scriptSrc += ` 'nonce-${nonce}'`;
-```
-
-You would then pass this nonce to your view (using nonces requires a non-static HTML) and render script tags that look something like this:
-
-```js
-<script nonce="<%= nonce %>">
-    ...
-</script>
-```
-
-#### Warning
-
-**Don't** create a middleware that replaces all script tags with "script nonce=..." because attacker-injected scripts will then get the nonces as well. You need an actual HTML templating engine to use nonces.
-
-### strict-dynamic
-
-The `strict-dynamic` directive can be used in combination with either, hashes or nonces.
-
-If the script block is creating additional DOM elements and executing JS inside of them, `strict-dynamic` tells the browser to trust those elements.
-
-Note that `strict-dynamic` is a CSP level 3 feature and not very widely supported yet. For more details, check out [strict-dynamic usage](https://w3c.github.io/webappsec-csp/#strict-dynamic-usage).
-
 ## CSP Sample Policies
 
-### Basic CSP Policy
+### Strict Policy
 
-This policy prevents cross-site framing and cross-site form-submissions. It will only allow resources from the originating domain for all the default level directives and will not allow inline scripts/styles to execute.
+A strict policy's role is to protect against classical stored, reflected, and some of the DOM XSS attacks and should be the optimal goal of any team trying to implement CSP.
+
+As noted above, Google went ahead and set up a detailed and methodological [instructions](https://web.dev/strict-csp) for creating a Strict CSP.
+
+Based on those instructions, one of the following two policies can be used to apply a strict policy:
+
+#### Nonce-based Strict Policy
+
+```text
+Content-Security-Policy:
+  script-src 'nonce-{RANDOM}' 'strict-dynamic';
+  object-src 'none';
+  base-uri 'none';
+```
+
+#### Hash-based Strict Policy
+
+```text
+Content-Security-Policy:
+  script-src 'sha256-{HASHED_INLINE_SCRIPT}' 'strict-dynamic';
+  object-src 'none';
+  base-uri 'none';
+```
+
+### Basic non-Strict CSP Policy
+
+This policy can be used if it is not possible to create a Strict Policy and it prevents cross-site framing and cross-site form-submissions. It will only allow resources from the originating domain for all the default level directives and will not allow inline scripts/styles to execute.
 
 If your application functions with these restrictions, it drastically reduces your attack surface and works with most modern browsers.
 
@@ -294,28 +334,6 @@ Content-Security-Policy: upgrade-insecure-requests;
 - To allow for trusted domain, do the following:
     - `Content-Security-Policy: frame-ancestors trusted.com;`
 
-### Strict Policy
-
-A strict policy's role is to protect against classical stored, reflected, and some of the DOM XSS attacks and should be the optimal goal of any team trying to implement CSP.
-
-Google went ahead and set up a [guide](https://web.dev/strict-csp) to adopt a strict CSP based on nonces.
-
-Based on a [presentation](https://speakerdeck.com/lweichselbaum/csp-a-successful-mess-between-hardening-and-mitigation?slide=55) at LocoMocoSec, the following two policies can be used to apply a strict policy:
-
-- Moderate Strict Policy:
-
-```text
-script-src 'nonce-r4nd0m' 'strict-dynamic';
-object-src 'none'; base-uri 'none';
-```
-
-- Locked down Strict Policy:
-
-```text
-script-src 'nonce-r4nd0m';
-object-src 'none'; base-uri 'none';
-```
-
 ### Refactoring inline code
 
 When `default-src` or `script-src*` directives are active, CSP by default disables any JavaScript code placed inline in the HTML source, such as this:
@@ -349,14 +367,6 @@ document.getElementById("button1").addEventListener('click', doSomething);
 
 ## References
 
-- [Strict CSP](https://web.dev/strict-csp)
-- [CSP Level 3 W3C](https://www.w3.org/TR/CSP3/)
-- [Content-Security-Policy](https://content-security-policy.com/)
-- [MDN CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy)
-- [CSP Wikipedia](https://en.wikipedia.org/wiki/Content_Security_Policy)
-- [CSP CheatSheet by Scott Helme](https://scotthelme.co.uk/csp-cheat-sheet/)
-- [Breaking Bad CSP](https://www.slideshare.net/LukasWeichselbaum/breaking-bad-csp)
-- [CSP A Successful Mess Between Hardening And Mitigation](https://speakerdeck.com/lweichselbaum/csp-a-successful-mess-between-hardening-and-mitigation)
-- [CSP Scanner](https://cspscanner.com/)
-- [Content Security Policy Guide on AppSec Monkey](https://www.appsecmonkey.com/blog/content-security-policy-header/)
-- CSP Generator: [Chrome](https://chrome.google.com/webstore/detail/content-security-policy-c/ahlnecfloencbkpfnpljbojmjkfgnmdc)/[Firefox](https://addons.mozilla.org/en-US/firefox/addon/csp-generator/)
+- [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/)
+- [MDN Content-Security-Policy header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy)
+- [Strict CSP deployment guidance](https://web.dev/articles/strict-csp)

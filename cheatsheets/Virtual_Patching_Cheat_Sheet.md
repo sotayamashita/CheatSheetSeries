@@ -6,9 +6,9 @@ The goal with this cheat Sheet is to present a concise virtual patching framewor
 
 ## Definition: Virtual Patching
 
-**A security policy enforcement layer which prevents and reports the exploitation attempt of a known vulnerability.**
+**A security policy enforcement layer that detects and blocks matching exploitation attempts against a known vulnerability without changing the vulnerable code.**
 
-The virtual patch works when the security enforcement layer analyzes transactions and intercepts attacks in transit, so malicious traffic never reaches the web application. The resulting impact of virtual patching is that, while the actual source code of the application itself has not been modified, the exploitation attempt does not succeed.
+A virtual patch reduces exposure only for traffic the enforcement layer inspects and attack variants its rules recognize. It does not remove the underlying vulnerability. Test for bypasses and continue the code or vendor fix; [rule matching and transformations can miss attacks](https://coreruleset.org/docs/3-about-rules/creating/#advanced-transformation-usage).
 
 ## Why Not Just Fix the Code
 
@@ -25,7 +25,7 @@ The important point is this - **Code level fixes and Virtual Patching are NOT mu
 The two main goals of Virtual Patching are:
 
 - **Minimize Time-to-Fix** - Fixing application source code takes time. The main purpose of a virtual patch is to implement a mitigation for the identified vulnerability as soon as possible. The urgency of this response may be different: for example if the vulnerability was identified in-house through code reviews or penetration testing vs. finding a vulnerability as part of live incident response.
-- **Attack Surface Reduction** - Focus on minimizing the attack vector. In some cases, such as missing positive security input validation, it is possible to achieve 100% attack surface reduction. In other cases, such with missing output encoding for XSS flaws, you may only be able to limit the exposures. Keep in mind - 50% reduction in 10 minutes is better than 100% reduction in 48 hrs.
+- **Attack Surface Reduction** - Block the known exploitation path while a permanent fix is prepared. Test alternate encodings, affected endpoints, and paths that bypass the enforcement layer before claiming coverage. A passing test for one payload does not establish complete protection; [Core Rule Set (CRS) rule-writing guidance](https://coreruleset.org/docs/3-about-rules/creating/#advanced-transformation-usage) illustrates how small payload changes can evade a rule.
 
 ## Virtual Patching Tools
 
@@ -73,14 +73,11 @@ The importance of properly utilizing the preparation phase with regards to virtu
 Here are a few critical items that should be addressed during the preparation phase:
 
 - **Public/Vendor Vulnerability Monitoring** - Ensure that you are signed up for all vendor alert mail-lists for commercial software that you are using. This will ensure that you will be notified in the event that the vendor releases vulnerability information and patching data.
-- **Virtual Patching Pre-Authorization** – Virtual Patches need to be implemented quickly so the normal governance processes and authorizations steps for standard software patches need to be expedited. Since virtual patches are not actually modifying source code, they do not require the same amount of regression testing as normal software patches. Categorizing virtual patches in the same group as Anti-Virus updates or Network IDS signatures helps to speed up the authorization process and minimize extended testing phases.
+<!-- textlint-disable -->
+- **Virtual Patching Pre-Authorization** – Establish an expedited review and rollout process before an incident. Test both exploit attempts and legitimate application workflows: [false positives can block valid transactions](https://coreruleset.org/docs/2-how-crs-works/2-3-false-positives-and-tuning/#poor-user-experience) even though application code is unchanged. Define monitoring and rollback criteria before enabling blocking.
+<!-- textlint-enable -->
 - **Deploy Virtual Patching Tool In Advance** - As time is critical during incident response, it would be a poor time to have to get approvals to install new software. For instance, you can install ModSecurity WAF in embedded mode on your Apache servers, or an Apache reverse proxy server. The advantage with this deployment is that you can create fixes for non-Apache back-end servers. Even if you do not use ModSecurity under normal circumstances, it is best to have it "on deck" ready to be enabled if need be.
-- **Increase HTTP Audit Logging** – The standard Common Log Format (CLF) utilized by most web servers does not provide adequate data for conducting proper incident response. You need to have access to the following HTTP data:
-    - Request URI (including QUERY_STRING)
-    - Full Request Headers (including Cookies)
-    - Full Request Body (POST payload)
-    - Full Response Headers
-    - Full Response Body
+- **Configure HTTP Audit Logging** – Record the rule ID, timestamp, affected endpoint, enforcement outcome, and a correlation identifier for investigation. Avoid indiscriminate capture of query strings, headers, cookies, and request or response bodies: [WAF alerts can expose passwords and payment data](https://coreruleset.org/docs/2-how-crs-works/2-3-false-positives-and-tuning/#sensitive-information-and-regulatory-compliance). Exclude or redact sensitive fields before logging, following the [Logging Cheat Sheet](Logging_Cheat_Sheet.md#data-to-exclude).
 
 ## Identification Phase
 
@@ -90,8 +87,8 @@ The Identification Phase occurs when an organization becomes aware of a vulnerab
 
 This occurs when an organization takes it upon themselves to assess their web security posture and conducts the following tasks:
 
-- **Dynamic Application Assessments** - Whitehat attackers conduct penetration tests or automated web assessment tools are run against the live web application to identify flaws.
-- **Source code reviews** - Whitehat attackers use manual/automated means to analyze the source code of the web application to identify flaws.
+- **Dynamic Application Assessments** - Ethical attackers conduct penetration tests or automated web assessment tools are run against the live web application to identify flaws.
+- **Source code reviews** - Ethical attackers use manual/automated means to analyze the source code of the web application to identify flaws.
 
 Due to the fact that custom coded web applications are unique, these proactive identification tasks are extremely important as you are not able to rely upon third-party vulnerability notifications.
 
@@ -128,7 +125,7 @@ Care should be taken to attempt to minimize either of these two rules. It may no
 
 #### Positive Security (Allow List) Virtual Patches (**Recommended Solution**)
 
-Positive security model (allow list) is a comprehensive security mechanism that provides an independent input validation envelope to an application. The model specifies the characteristics of valid input (character set, length, etc…) and denies anything that does not conform. By defining rules for every parameter in every page in the application the application is protected by an additional security envelop independent from its code.
+Positive security model (allowlist) is a comprehensive security mechanism that provides an independent input validation envelope to an application. The model specifies the characteristics of valid input (character set, length, etc…) and denies anything that does not conform. By defining rules for every parameter in every page in the application the application is protected by an additional security envelop independent from its code.
 
 ##### Example Allow List ModSecurity Virtual Patch
 
@@ -155,7 +152,7 @@ This virtual patch will inspect the `reqID` parameter value on the specified pag
 
 #### Negative Security (Block List) Virtual Patches
 
-A negative security model (block list) is based on a set of rules that detect specific known attacks rather than allow only valid traffic.
+A negative security model (denylist) is based on a set of rules that detect specific known attacks rather than allow only valid traffic.
 
 ##### Example Block List ModSecurity Virtual Patch
 
@@ -198,7 +195,7 @@ Manual patch creation may become unfeasible as the number of vulnerabilities gro
 
 Three examples include:
 
-- **OWASP ModSecurity Core Rule Set (CRS) Scripts** - The OWASP CRS includes scripts to auto-convert XML output from tools such as [OWASP ZAP into ModSecurity Virtual Patches]. Reference [here](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/modsecurity-advanced-topic-of-the-week-automated-virtual-patching-using-owasp-zed-attack-proxy).
+- **OWASP ModSecurity Core Rule Set (CRS) Scripts** - The OWASP CRS includes scripts to auto-convert XML output from tools such as [ZAP into ModSecurity Virtual Patches]. Reference [here](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/modsecurity-advanced-topic-of-the-week-automated-virtual-patching-using-owasp-zed-attack-proxy).
 - **ThreadFix Virtual Patching** - ThreadFix also includes automated processes of converting imported vulnerability XML data into virtual patches for security tools such as ModSecurity. Reference [here](https://github.com/denimgroup/threadfix/wiki/Waf-Types#mod_security).
 - **Direct Importing to WAF Device** - Many commercial WAF products have the capability to import DAST tool XML report data and automatically adjust their protection profiles.
 
@@ -208,7 +205,7 @@ In order to accurately test out the newly created virtual patches, it may be nec
 
 - Web browser.
 - Command-line web clients such as Curl and Wget.
-- Local Proxy Servers such as [OWASP ZAP](https://www.zaproxy.org/).
+- Local Proxy Servers such as [ZAP](https://www.zaproxy.org/).
 - [ModSecurity AuditViewer](https://web.archive.org/web/20181011065823/http://www.jwall.org/web/audit/viewer.jsp) – which allows you to load a ModSecurity audit log file, manipulate it and then re-inject the data back into any web server.
 
 ### Testing Steps
@@ -225,5 +222,5 @@ In order to accurately test out the newly created virtual patches, it may be nec
 
 ## References
 
-- [OWASP Virtual Patching Best Practices](https://owasp.org/www-community/Virtual_Patching_Best_Practices).
-- [OWASP Securing WebGoat with ModSecurity](https://wiki.owasp.org/index.php/Category:OWASP_Securing_WebGoat_using_ModSecurity_Project).
+- [OWASP Virtual Patching Best Practices](https://community.owasp.org/Virtual_Patching_Best_Practices)
+- [OWASP CRS: Making Rules](https://coreruleset.org/docs/3-about-rules/creating/)

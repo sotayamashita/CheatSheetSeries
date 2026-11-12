@@ -16,9 +16,9 @@ For detailed guides about strong cryptography and best practices, read the follo
 
 1. [Cryptographic Storage Cheat Sheet](Cryptographic_Storage_Cheat_Sheet.md).
 2. [Authentication Cheat Sheet](Authentication_Cheat_Sheet.md).
-3. [Transport Layer Protection Cheat Sheet](Transport_Layer_Protection_Cheat_Sheet.md).
+3. [Transport Layer Security Cheat Sheet](Transport_Layer_Security_Cheat_Sheet.md).
 4. [Guide to Cryptography](https://wiki.owasp.org/index.php/Guide_to_Cryptography).
-5. [Testing for TLS/SSL](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/09-Testing_for_Weak_Cryptography/01-Testing_for_Weak_SSL_TLS_Ciphers_Insufficient_Transport_Layer_Protection.html).
+5. [Testing for TLS/SSL](https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/09-Testing_for_Weak_Cryptography/01-Testing_for_Weak_Transport_Layer_Security/).
 
 ### Support HTTP Strict Transport Security
 
@@ -98,9 +98,9 @@ For more information about anonymity networks, and the user protections they pro
 
 Preventing leakage of user IP addresses is of great significance when user protection is in scope. Any application that hosts external third-party content, such as avatars, signatures or photo attachments; must take into account the benefits of allowing users to block third-party content from being loaded in the application page.
 
-If it was possible to embed 3rd-party, external domain images, for example, in a user's feed or timeline; an adversary might use it to discover a victim's real IP address by hosting it on his domain and watch for HTTP requests for that image.
+If it was possible to embed third-party, external domain images, for example, in a user's feed or timeline; an adversary might use it to discover a victim's real IP address by hosting it on their domain and watch for HTTP requests for that image.
 
-Many web applications need user content to operate, and this is completely acceptable as a business process; however web developers are advised to consider giving users the option of blocking external content as a precaution. This applies mainly to social networks and forums, but can also apply to web-based e-mail, where images can be embedded in HTML-formatted emails.
+Many web applications need user content to operate, and this is completely acceptable as a business process; however web developers are advised to consider giving users the option of blocking external content as a precaution. This applies mainly to social networks and forums, but can also apply to web-based email, where images can be embedded in HTML-formatted emails.
 
 A similar issue exists in HTML-formatted emails that contain third-party images, however most email clients and providers block loading of third-party content by default; giving users better privacy and anonymity protection.
 
@@ -115,3 +115,8 @@ Honesty goes a long way towards cultivating a culture of trust between a web app
 More insight regarding secure logging can be found at:
 
 - [OWASP Logging Cheat Sheet](Logging_Cheat_Sheet.md)
+
+## References
+
+- [RFC 6973: Privacy Considerations for Internet Protocols](https://www.rfc-editor.org/info/rfc6973/)
+- [RFC 6797: HTTP Strict Transport Security (HSTS)](https://www.rfc-editor.org/info/rfc6797/)
